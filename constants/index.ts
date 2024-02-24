@@ -64,7 +64,7 @@ export const allbooks = [
     available: '5-MAR-2024',
     ebookurl: '',
     paperbackurl: '',
-    sample: '',
+    sample: 'https://heyzine.com/flip-book/5a76bfc07c.html',
   },
   {
     id: '003',
