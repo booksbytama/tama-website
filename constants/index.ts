@@ -35,7 +35,6 @@ export const allbooks = [
     longdescription: [
       "This isn't just a fun-filled adventure; it's also an educational journey. As Shelly and Spike navigate their underwater world, children will learn interesting facts about marine life, sparking curiosity and a love for the ocean. The book's language is playful and engaging, while the illustrations bring the underwater world to life with vibrant colors and charming details.",
       "But the adventure doesn't end there! The book concludes with a thrilling cliffhanger, leaving your child eager to dive into Book 2. This mini series provides a natural progression for young readers, allowing them to continue their undersea escapade with their newfound friends.",
-      "So, set sail on an unforgettable adventure with Shelly and Spike! This book is the perfect blend of excitement, friendship, and learning, making it a must-have for any child's bookshelf. It will spark their imagination, ignite their love for the ocean, and leave them wanting more.",
     ],
     ages: '5-8 years',
     bookType: 'series',
@@ -44,6 +43,7 @@ export const allbooks = [
     available: '27-FEB-2024',
     ebookurl: '',
     paperbackurl: '',
+    sample: 'https://heyzine.com/flip-book/e88f5dd3fa.html',
   },
   {
     id: '002',
@@ -58,13 +58,13 @@ export const allbooks = [
     longdescription: [
       'Join Billy as he introduces you to Shelly and Spike, two starfish superstars with incredible stories to tell. Discover the secrets of their star-shaped bodies, vibrant colors, and hidden superpowers. Did you know they can grow new arms and navigate the ocean floor with hundreds of tiny water balloons at the tips of their arms?',
       "This charming book goes beyond just starfish, offering a glimpse into the wonders of the entire ocean ecosystem. Learn about the unique water vascular system that carries food and oxygen within starfish, and travel with Billy and his friends to the deepest, darkest parts of the ocean where sunlight never reaches. Each page is bursting with colorful illustrations that bring the underwater world to life, igniting your child's imagination and curiosity.",
-      'More than just a collection of facts, Marine Life with Billy Book 1: Starfish is a heartwarming tale of friendship and exploration. It gently teaches children about the importance of protecting our oceans and the creatures that call it home. With its engaging characters, interactive format, and lasting message, this book is sure to become a treasured favorite for bedtime stories, classroom learning, and sparking a lifelong love for the wonders of the sea. So, set sail on an unforgettable adventure with Billy and discover the magic of starfish today!',
     ],
     ages: '5-8 years',
     bookType: 'series',
     available: '5-MAR-2024',
     ebookurl: '',
     paperbackurl: '',
+    sample: '',
   },
   {
     id: '003',
@@ -84,6 +84,7 @@ export const allbooks = [
     available: '7-MAY-2024',
     ebookurl: '',
     paperbackurl: '',
+    sample: '',
   },
   {
     id: '004',
@@ -102,6 +103,7 @@ export const allbooks = [
     ages: '5-8 years',
     bookType: 'non-series',
     available: 'yes',
+    sample: '',
     buylinks: [
       {
         buyname: 'Buy Ebook (AU Edition)',
@@ -164,6 +166,7 @@ export const allbooks = [
           'https://www.amazon.com/Adventures-Sparky-Squirrel-Tale-Self-Worth/dp/B0CQTTBGCL/',
       },
     ],
+    sample: '',
   },
   {
     id: '006',
@@ -184,6 +187,7 @@ export const allbooks = [
     available: '26-MAR-2024',
     ebookurl: '',
     paperbackurl: '',
+    sample: '',
   },
 ];
 
