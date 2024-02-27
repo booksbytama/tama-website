@@ -40,9 +40,28 @@ export const allbooks = [
     bookType: 'series',
     seriesname: 'Shelly and Spike',
     serieslink: 'shellyandspike',
-    available: '27-FEB-2024',
-    ebookurl: '',
-    paperbackurl: '',
+    available: 'yes',
+    buylinks: [
+      {
+        buyname: 'Buy Ebook (AU Edition)',
+        buylink: 'https://www.amazon.com.au/dp/B0CVR8MSRT',
+      },
+
+      {
+        buyname: 'Buy Ebook',
+        buylink: 'https://www.amazon.com/dp/B0CVRPHN1Y',
+      },
+      {
+        buyname: 'Buy Paperback (AU Edition)',
+        buylink:
+          'https://www.amazon.com.au/Shelly-Spike-Starfish-Adventure-Friendship/dp/B0CVSNJSX1/',
+      },
+      {
+        buyname: 'Buy Paperback',
+        buylink:
+          'https://www.amazon.com/Shelly-Spike-Starfish-Adventure-Friendship/dp/B0CVSLH2RN/',
+      },
+    ],
     sample: 'https://heyzine.com/flip-book/e88f5dd3fa.html',
   },
   {
@@ -62,8 +81,7 @@ export const allbooks = [
     ages: '5-8 years',
     bookType: 'series',
     available: '5-MAR-2024',
-    ebookurl: '',
-    paperbackurl: '',
+
     sample: 'https://heyzine.com/flip-book/5a76bfc07c.html',
   },
   {
