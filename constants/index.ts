@@ -80,7 +80,28 @@ export const allbooks = [
     ],
     ages: '5-8 years',
     bookType: 'series',
-    available: '5-MAR-2024',
+    available: 'yes',
+    buylinks: [
+      {
+        buyname: 'Buy Ebook (AU Edition)',
+        buylink: 'https://www.amazon.com.au/dp/B0CW19XD9B/',
+      },
+
+      {
+        buyname: 'Buy Ebook',
+        buylink: 'https://www.amazon.com/dp/B0CTHPW9C5/',
+      },
+      {
+        buyname: 'Buy Paperback (AU Edition)',
+        buylink:
+          'https://www.amazon.com.au/Marine-Life-Billy-Illustrated-Educational/dp/B0CWSN6M5W/',
+      },
+      {
+        buyname: 'Buy Paperback',
+        buylink:
+          'https://www.amazon.com/Marine-Life-Billy-Illustrated-Educational/dp/B0CWS7CWK4/',
+      },
+    ],
 
     sample: 'https://heyzine.com/flip-book/5a76bfc07c.html',
   },
