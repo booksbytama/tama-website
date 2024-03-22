@@ -142,7 +142,7 @@ export const allbooks = [
     ages: '5-8 years',
     bookType: 'non-series',
     available: 'yes',
-    sample: '',
+    sample: 'https://heyzine.com/flip-book/e6f7d6a90e.html',
     buylinks: [
       {
         buyname: 'Buy Ebook (AU Edition)',
