@@ -223,10 +223,18 @@ export const allbooks = [
     bookType: 'series',
     seriesname: 'Shelly and Spike',
     serieslink: 'shellyandspike',
-    available: '26-MAR-2024',
-    ebookurl: '',
-    paperbackurl: '',
+    available: 'yes',
     sample: 'https://heyzine.com/flip-book/21e00b29d4.html',
+    buylinks: [
+      {
+        buyname: 'Buy Ebook',
+        buylink: 'https://www.amazon.com/dp/B0CYYH72BD',
+      },
+      {
+        buyname: 'Buy Paperback',
+        buylink: 'https://www.amazon.com/dp/B0CYY2J43H',
+      },
+    ],
   },
   {
     id: '007',
