@@ -123,7 +123,7 @@ export const allbooks = [
     available: '7-MAY-2024',
     ebookurl: '',
     paperbackurl: '',
-    sample: '',
+    sample: 'https://heyzine.com/flip-book/06abc85b4f.html',
   },
   {
     id: '004',
