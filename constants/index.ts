@@ -26,43 +26,32 @@ export const headerLinks = [
 export const allbooks = [
   {
     id: '001',
-    name: 'Shelly and Spike The Tale of Starfish Adventure and Friendship Book 1',
-    image: 'shellyandspikebook1.jpg',
-    slugId: 'shellyandspikebook1',
-    shortdescription: 'The Tale of Starfish Adventure and Friendship Book 1',
+    name: 'Starfish Super Squad Book 1 - A Mystery Map',
+    image: 'starfishsupersquadbook1.jpg',
+    slugId: 'starfishsupersquadbook1',
+    shortdescription: 'Starfish Super Squad Book 1 - A Mystery Map',
     description:
-      'Dive into an enchanting undersea adventure with Shelly and Spike, two starfish friends with contrasting personalities! Join Shelly, the cautious pink starfish, and Spike, the adventurous yellow starfish, as they embark on a thrilling treasure hunt guided by a mysterious map.',
+      "Dive into an Underwater Adventure with the Starfish Super Squad!Starfish Super Squad: A Treasure Map Adventure (Book 1 of the Treasure Map Adventure Series) is a captivating read-aloud children's book bursting with vibrant and colorful illustrations. This exciting story is a perfect picture book for kindergarten, first, and second graders, fostering a love for reading while introducing ocean animals, teamwork, problem-solving, and the wonders of the ocean world. It's a wonderful addition to any bedtime story collection and a must-have for young readers",
+
     longdescription: [
-      "This isn't just a fun-filled adventure; it's also an educational journey. As Shelly and Spike navigate their underwater world, children will learn interesting facts about marine life, sparking curiosity and a love for the ocean. The book's language is playful and engaging, while the illustrations bring the underwater world to life with vibrant colors and charming details.",
-      "But the adventure doesn't end there! The book concludes with a thrilling cliffhanger, leaving your child eager to dive into Book 2. This mini series provides a natural progression for young readers, allowing them to continue their undersea escapade with their newfound friends.",
+      "Join Shelly, the shy pink starfish, and Spike, the adventurous bumpy yellow starfish, as they embark on their first thrilling adventure in the Treasure Map Adventure Series!. This book not only entertains but also educates children about marine life and environmental conservation.Ideal for birthdays, holidays, or any special occasion, making it a treasured addition to any child's library.",
     ],
     ages: '5-8 years',
     bookType: 'series',
-    seriesname: 'Shelly and Spike',
+    seriesname: 'Treasure Map Adventures',
     serieslink: 'shellyandspike',
     available: 'yes',
     buylinks: [
       {
-        buyname: 'Buy Ebook (AU Edition)',
-        buylink: 'https://www.amazon.com.au/dp/B0CVR8MSRT',
-      },
-
-      {
         buyname: 'Buy Ebook',
-        buylink: 'https://www.amazon.com/dp/B0CVRPHN1Y',
-      },
-      {
-        buyname: 'Buy Paperback (AU Edition)',
-        buylink:
-          'https://www.amazon.com.au/Shelly-Spike-Starfish-Adventure-Friendship/dp/B0CVSNJSX1/',
+        buylink: 'https://www.amazon.com/dp/B0D7VF9GQ2/',
       },
       {
         buyname: 'Buy Paperback',
-        buylink:
-          'https://www.amazon.com/Shelly-Spike-Starfish-Adventure-Friendship/dp/B0CVSLH2RN/',
+        buylink: 'https://www.amazon.com/dp/B0D7VZ7ZZZ/',
       },
     ],
-    sample: 'https://heyzine.com/flip-book/e88f5dd3fa.html',
+    sample: 'https://heyzine.com/flip-book/a2ff8d113f.html',
   },
   {
     id: '002',
@@ -103,7 +92,7 @@ export const allbooks = [
       },
     ],
 
-    sample: 'https://heyzine.com/flip-book/5a76bfc07c.html',
+    sample: 'https://heyzine.com/flip-book/32fc0933ac.html',
   },
   {
     id: '003',
@@ -120,10 +109,21 @@ export const allbooks = [
     ],
     ages: '4-8 years',
     bookType: 'series',
-    available: '7-MAY-2024',
+    available: 'yes',
     ebookurl: '',
     paperbackurl: '',
     sample: 'https://heyzine.com/flip-book/06abc85b4f.html',
+    buylinks: [
+      {
+        buyname: 'Buy Ebook',
+        buylink: 'https://www.amazon.com/dp/B0D35HBHC4/',
+      },
+      {
+        buyname: 'Buy Paperback',
+        buylink:
+          'https://www.amazon.com/Buzzy-Bee-Triumph-First-School/dp/B0D36B6ZF7/',
+      },
+    ],
   },
   {
     id: '004',
@@ -169,7 +169,7 @@ export const allbooks = [
     id: '005',
     name: 'Sparky - The Adventures of Sparky the Squirrel: A Tale of Self-Worth',
     shortname: 'Sparky',
-    image: 'sparky.png',
+    image: 'sparky.jpg',
     seriesname: '',
     slugId: 'sparky',
     shortdescription:
@@ -205,77 +205,6 @@ export const allbooks = [
           'https://www.amazon.com/Adventures-Sparky-Squirrel-Tale-Self-Worth/dp/B0CQTTBGCL/',
       },
     ],
-    sample: '',
-  },
-  {
-    id: '006',
-    name: 'Shelly and Spike The Tale of Starfish Adventure and Friendship Book 2',
-    image: 'shellyandspikebook2.jpg',
-    slugId: 'shellyandspikebook2',
-    shortdescription: 'The Tale of Starfish Adventure and Friendship Book 2',
-    description:
-      "Join Shelly, the cautious pink starfish, and Spike, the bubbly yellow explorer, as they embark on a new quest following their super special treasure map! They're headed to the mysterious Deep Sea of Stingrays on the back of Windy, a friendly whale shark. But their journey isn't all smooth sailing.",
-    longdescription: [
-      "Packed with exciting adventures, heartwarming moments, and valuable lessons, Shelly & Spike. The Tales of Starfish Adventure and Friendship Book 2 is sure to captivate young readers! It's the perfect blend of thrilling exploration, unbreakable friendship, gentle environmental message, non-stop excitement and series continuity.",
-      "Don't let Shelly & Spike explore the undersea world alone! Get your copy today and join them on a journey filled with laughter, friendship, and unforgettable discoveries!",
-    ],
-    ages: '5-8 years',
-    bookType: 'series',
-    seriesname: 'Shelly and Spike',
-    serieslink: 'shellyandspike',
-    available: 'yes',
-    sample: 'https://heyzine.com/flip-book/21e00b29d4.html',
-    buylinks: [
-      {
-        buyname: 'Buy Ebook',
-        buylink: 'https://www.amazon.com/dp/B0CYYH72BD',
-      },
-      {
-        buyname: 'Buy Paperback',
-        buylink: 'https://www.amazon.com/dp/B0CYY2J43H',
-      },
-    ],
-  },
-  {
-    id: '007',
-    name: 'Marine Life With Billy Book 2',
-    image: 'billybook2.jpg',
-    seriesname: 'Billy',
-    serieslink: 'billy',
-    slugId: 'billybook2',
-    shortdescription: 'Marine Life With Billy Book 2',
-    description:
-      'Dive into the amazing world of whale sharks with Billy the Blue Fish, your friendly guide to undersea adventures! Marine Life with Billy Book 2: Whale shark is the perfect blend of fun storytelling and fascinating facts, designed to spark a love for our oceans in young readers.',
-    longdescription: [
-      'Join Billy as he introduces you to Windy, the whale shark, with incredible stories to tell.',
-      "This charming book goes beyond just whale shark, offering a glimpse into the wonders of the entire ocean ecosystem.Each page is bursting with colorful illustrations that bring the underwater world to life, igniting your child's imagination and curiosity.",
-    ],
-    ages: '5-8 years',
-    bookType: 'series',
-    available: '30-APR-2024',
-    ebookurl: '',
-    paperbackurl: '',
-    sample: '',
-  },
-  {
-    id: '007',
-    name: 'Marine Life With Billy Book 3',
-    image: 'billybook3.jpg',
-    seriesname: 'Billy',
-    serieslink: 'billy',
-    slugId: 'billybook3',
-    shortdescription: 'Marine Life With Billy Book 3',
-    description:
-      'Dive into the amazing world of urchins with Billy the Blue Fish, your friendly guide to undersea adventures! Marine Life with Billy Book 3: Uchin is the perfect blend of fun storytelling and fascinating facts, designed to spark a love for our oceans in young readers.',
-    longdescription: [
-      'Join Billy as he introduces you to Uma, the urchin with incredible stories to tell.',
-      "This charming book goes beyond just urchin, offering a glimpse into the wonders of the entire ocean ecosystem.Each page is bursting with colorful illustrations that bring the underwater world to life, igniting your child's imagination and curiosity.",
-    ],
-    ages: '5-8 years',
-    bookType: 'series',
-    available: '25-JUNE-2024',
-    ebookurl: '',
-    paperbackurl: '',
     sample: '',
   },
 ];

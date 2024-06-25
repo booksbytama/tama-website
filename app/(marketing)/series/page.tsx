@@ -59,7 +59,7 @@ export default function AllSeriesPage() {
           </div>
 
           <div id='shellyandspike' className='mt-6'>
-            <AllSeriesCard name='Shelly and Spike' />
+            <AllSeriesCard name='Treasure Map Adventures' />
           </div>
           <div id='billy' className='mt-6'>
             <AllSeriesCard name='Billy' />
