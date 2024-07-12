@@ -207,6 +207,35 @@ export const allbooks = [
     ],
     sample: '',
   },
+  {
+    id: '006',
+    name: 'Starfish Super Squad Book 2 - Coral Reef Heroes',
+    image: 'starfishsupersquadbook2.jpg',
+    slugId: 'starfishsupersquadbook2',
+    shortdescription: 'Starfish Super Squad Book 2 - Coral Reef Heroes',
+    description:
+      "Dive into an exciting underwater adventure with Shelly and Spike, the best starfish buddies! Armed with a mysterious treasure map, Shelly and Spike embark on a thrilling journey to the Deep Sea. Along the way, they meet a cast of colorful characters, including Billy, the playful fish, and Windy, the gentle giant whale shark.But trouble bubbles up! Prickly sea urchins threaten the vibrant coral reefs. Can Shelly, Spike, and their new friends work together to save the day?With teamwork, bravery, and a dash of humor, they'll discover that even the smallest starfish can make a big difference.",
+
+    longdescription: [
+      'Perfect for young ocean explorers ages 5-8, Starfish Super Squad: Coral Reef Heroes is an exciting read-aloud adventure that includes A captivating underwater adventures, friendship and teamwork, environmental awareness, catchy rhymes, interactive sound words, and beautiful illustrations,',
+    ],
+    ages: '5-8 years',
+    bookType: 'series',
+    seriesname: 'Treasure Map Adventures',
+    serieslink: 'shellyandspike',
+    available: 'yes',
+    buylinks: [
+      {
+        buyname: 'Buy Ebook',
+        buylink: 'https://www.amazon.com/dp/B0D8KX6V12/',
+      },
+      {
+        buyname: 'Buy Paperback',
+        buylink: 'https://www.amazon.com/dp/B0D8P2ZHVQ/',
+      },
+    ],
+    sample: 'https://heyzine.com/flip-book/6c56778374.html',
+  },
 ];
 
 export const eventDefaultValues = {
