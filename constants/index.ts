@@ -236,6 +236,35 @@ export const allbooks = [
     ],
     sample: 'https://heyzine.com/flip-book/6c56778374.html',
   },
+  {
+    id: '007',
+    name: 'Starfish Super Squad Book 3 - The Unhappy Urchin',
+    image: 'starfishsupersquadbook3.jpg',
+    slugId: 'starfishsupersquadbook3',
+    shortdescription: 'Starfish Super Squad Book 3 - The Unhappy Urchi',
+    description:
+      'Join Shelly, the shy pink starfish, and Spike, the adventurous yellow starfish, as they embark on another thrilling underwater quest! After discovering a mysterious treasure map in their previous adventures, our starfish friends are ready for their next big challenge.In this heartwarming tale, Shelly and Spike encounter a grumpy sea urchin named Uma who needs their help. With the aid of their new friend, Billy the blue fish, and the gentle giant whale shark, Windy, our starfish heroes embark on a mission to save the coral reef and make a new friend along the way.',
+
+    longdescription: [
+      'Packed with vibrant illustrations, engaging characters, and a touch of humor, this read-aloud story is perfect for sharing with young children. Explore the wonders of the underwater world, learn about teamwork, and discover the importance of protecting our oceans.',
+    ],
+    ages: '5-8 years',
+    bookType: 'series',
+    seriesname: 'Treasure Map Adventures',
+    serieslink: 'shellyandspike',
+    available: 'yes',
+    buylinks: [
+      {
+        buyname: 'Buy Ebook',
+        buylink: 'https://www.amazon.com/dp/B0D5TNHXXY/',
+      },
+      {
+        buyname: 'Buy Paperback',
+        buylink: 'https://www.amazon.com/dp/B0D9L9KPBP/',
+      },
+    ],
+    sample: 'https://heyzine.com/flip-book/91e1dcc072.html',
+  },
 ];
 
 export const eventDefaultValues = {
