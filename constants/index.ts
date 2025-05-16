@@ -44,11 +44,11 @@ export const allbooks = [
     buylinks: [
       {
         buyname: 'Buy Ebook',
-        buylink: 'https://www.amazon.com/dp/B0D7VF9GQ2/',
+        buylink: 'https://www.amazon.com/dp/B0F3VXRTYK',
       },
       {
         buyname: 'Buy Paperback',
-        buylink: 'https://www.amazon.com/dp/B0D7VZ7ZZZ/',
+        buylink: 'https://www.amazon.com/dp/1923337033',
       },
     ],
     sample: 'https://heyzine.com/flip-book/a2ff8d113f.html',
