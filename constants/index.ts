@@ -31,10 +31,9 @@ export const allbooks = [
     slugId: 'starfishsupersquadbook1',
     shortdescription: 'Starfish Super Squad Book 1 - A Mystery Map',
     description:
-      "Dive into an Underwater Adventure with the Starfish Super Squad!Starfish Super Squad: A Treasure Map Adventure (Book 1 of the Treasure Map Adventure Series) is a captivating read-aloud children's book bursting with vibrant and colorful illustrations. This exciting story is a perfect picture book for kindergarten, first, and second graders, fostering a love for reading while introducing ocean animals, teamwork, problem-solving, and the wonders of the ocean world. It's a wonderful addition to any bedtime story collection and a must-have for young readers",
-
+      'Deep in Coral Cove, two best friends lived under the sea—Shelly, a shy pink starfish, and Spike, a cheerful yellow starfish who loved adventures! One sunny day, they discovered a mysterious treasure map that would change everything.',
     longdescription: [
-      "Join Shelly, the shy pink starfish, and Spike, the adventurous bumpy yellow starfish, as they embark on their first thrilling adventure in the Treasure Map Adventure Series!. This book not only entertains but also educates children about marine life and environmental conservation.Ideal for birthdays, holidays, or any special occasion, making it a treasured addition to any child's library.",
+      'Join Shelly and Spike in the very first book of their 24-book series, packed with exciting discoveries, ocean creatures, and underwater fun. What treasures and secrets will they uncover next?',
     ],
     ages: '5-8 years',
     bookType: 'series',
@@ -43,8 +42,12 @@ export const allbooks = [
     available: 'yes',
     buylinks: [
       {
-        buyname: 'Buy Ebook',
+        buyname: 'Buy Ebook (Kindle)',
         buylink: 'https://www.amazon.com/dp/B0F3VXRTYK',
+      },
+      {
+        buyname: 'Buy Ebook (Google Play)',
+        buylink: 'https://play.google.com/store/books/details?id=b3hZEQAAQBAJ',
       },
       {
         buyname: 'Buy Paperback',
