@@ -35,7 +35,7 @@ export const allbooks = [
     longdescription: [
       'Join Shelly and Spike in the very first book of their 24-book series, packed with exciting discoveries, ocean creatures, and underwater fun. What treasures and secrets will they uncover next?',
     ],
-    ages: '5-8 years',
+    ages: '4-8 years',
     bookType: 'series',
     seriesname: 'Treasure Map Adventures',
     serieslink: 'shellyandspike',
@@ -85,6 +85,10 @@ export const allbooks = [
       {
         buyname: 'Buy Ebook (Kindler)',
         buylink: 'https://www.amazon.com/dp/B0D8KX6V12',
+      },
+      {
+        buyname: 'Buy Ebook (Google Play)',
+        buylink: 'https://play.google.com/store/books/details?id=7opfEQAAQBAJ',
       },
       {
         buyname: 'Buy Ebook (Kindler AU)',
