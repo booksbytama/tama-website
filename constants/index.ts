@@ -25,7 +25,7 @@ export const headerLinks = [
 
 export const allbooks = [
   {
-    id: '001',
+    id: 'S01',
     name: 'Starfish Super Squad Book 1 - A Mystery Map',
     image: 'starfishsupersquadbook1.jpg',
     slugId: 'starfishsupersquadbook1',
@@ -35,7 +35,7 @@ export const allbooks = [
     longdescription: [
       'Join Shelly and Spike in the very first book of their 24-book series, packed with exciting discoveries, ocean creatures, and underwater fun. What treasures and secrets will they uncover next?',
     ],
-    ages: '4-8 years',
+    ages: '5-8 years',
     bookType: 'series',
     seriesname: 'Treasure Map Adventures',
     serieslink: 'shellyandspike',
@@ -65,7 +65,7 @@ export const allbooks = [
     sample: 'https://heyzine.com/flip-book/a2ff8d113f.html',
   },
   {
-    id: '002',
+    id: 'S02',
     name: 'Starfish Super Squad Book 2 - Coral Reef Heroes',
     image: 'starfishsupersquadbook2.jpg',
     slugId: 'starfishsupersquadbook2',
@@ -76,7 +76,7 @@ export const allbooks = [
     longdescription: [
       'Join Shelly, Spike, and the rest of the Starfish Super Squad in the second book of their 24-book series, as they embark on an exciting mission to protect the coral reefs and uncover even more underwater wonders.',
     ],
-    ages: '4-8 years',
+    ages: '5-8 years',
     bookType: 'series',
     seriesname: 'Treasure Map Adventures',
     serieslink: 'shellyandspike',
@@ -106,7 +106,89 @@ export const allbooks = [
     sample: 'https://heyzine.com/flip-book/6c56778374.html',
   },
   {
-    id: '003',
+    id: 'S02',
+    name: 'Starfish Super Squad Book 2 - Coral Reef Heroes',
+    image: 'starfishsupersquadbook2.jpg',
+    slugId: 'starfishsupersquadbook2',
+    shortdescription: 'Starfish Super Squad Book 2 - Coral Reef Heroes',
+    description:
+      'Deep in Coral Cove, two best friends lived under the sea—Shelly, a shy pink starfish, and Spike, a cheerful yellow starfish who loved adventures! One sunny day, they discovered a mysterious treasure map that would change everything. In Book 2, follow Shelly and Spike as they set off on a big adventure and make new friends. But before they can search for treasure, they discover the coral reefs are in trouble!Now, they must work together with their new friends to save the reefs before continuing their quest.',
+
+    longdescription: [
+      'Join Shelly, Spike, and the rest of the Starfish Super Squad in the second book of their 24-book series, as they embark on an exciting mission to protect the coral reefs and uncover even more underwater wonders.',
+    ],
+    ages: '5-8 years',
+    bookType: 'series',
+    seriesname: 'Treasure Map Adventures',
+    serieslink: 'shellyandspike',
+    available: 'yes',
+    buylinks: [
+      {
+        buyname: 'Buy Ebook (Kindler)',
+        buylink: 'https://www.amazon.com/dp/B0D8KX6V12',
+      },
+      {
+        buyname: 'Buy Ebook (Google Play)',
+        buylink: 'https://play.google.com/store/books/details?id=7opfEQAAQBAJ',
+      },
+      {
+        buyname: 'Buy Ebook (Kindler AU)',
+        buylink: 'https://www.amazon.com.au/dp/B0D8KX6V12',
+      },
+      {
+        buyname: 'Buy Paperback',
+        buylink: 'https://www.amazon.com/dp/1923337068',
+      },
+      {
+        buyname: 'Buy Paperback (AU)',
+        buylink: 'https://www.amazon.com.au/dp/1923337068',
+      },
+    ],
+    sample: 'https://heyzine.com/flip-book/6c56778374.html',
+  },
+  {
+    id: 'S03',
+    name: 'Starfish Super Squad Book 3 - The Grumpy Quest',
+    image: 'starfishsupersquadbook3.jpg',
+    slugId: 'starfishsupersquadbook3',
+    shortdescription: 'Starfish Super Squad Book 3 - The Grumpy Quest',
+    description:
+      'Deep in Coral Cove, two best friends lived under the sea - Shelly, a shy pink starfish, and Spike, a cheerful yellow starfish who loved adventures! One sunny day, they discovered a mysterious treasure map that would change everything. In Book 3, follow Shelly and Spike as they set off on a big adventure and make new friends. But before they searched for treasure, they stopped at the Coral Reef Garden to save the coral reefs. There, they met a grumpy sea creature who needed their help.',
+
+    longdescription: [
+      'Join Shelly, Spike, and the rest of the Starfish Super Squad in the second book of their 24-book series, as they embark on an exciting mission to protect the coral reefs and uncover even more underwater wonders.',
+    ],
+    ages: '5-8 years',
+    bookType: 'series',
+    seriesname: 'Treasure Map Adventures',
+    serieslink: 'shellyandspike',
+    available: 'yes',
+    buylinks: [
+      {
+        buyname: 'Buy Ebook (Kindler)',
+        buylink: 'https://www.amazon.com/dp/B0FBQLYM69',
+      },
+      {
+        buyname: 'Buy Ebook (Google Play)',
+        buylink: 'https://play.google.com/store/books/details/?id=ze1iEQAAQBAJ',
+      },
+      {
+        buyname: 'Buy Ebook (Kindler AU)',
+        buylink: 'https://www.amazon.com.au/dp/B0FBQLYM69',
+      },
+      {
+        buyname: 'Buy Paperback',
+        buylink: 'https://www.amazon.com/dp/1923337076',
+      },
+      {
+        buyname: 'Buy Paperback (AU)',
+        buylink: 'https://www.amazon.com.au/dp/1923337076',
+      },
+    ],
+    sample: 'https://heyzine.com/flip-book/91e1dcc072.html',
+  },
+  {
+    id: 'I01',
     shortname: 'Worry Whale',
     name: 'Worry Whale - A Whimsical Worry Whale: A Tale of Taming Worries',
     image: 'worrywhale.png',
@@ -146,7 +228,7 @@ export const allbooks = [
     ],
   },
   {
-    id: '004',
+    id: 'BI01',
     name: 'Marine Life With Billy Book 1',
     image: 'billybook1.jpg',
     seriesname: 'Billy',
@@ -187,7 +269,7 @@ export const allbooks = [
     sample: 'https://heyzine.com/flip-book/32fc0933ac.html',
   },
   {
-    id: '005',
+    id: 'BE01',
     name: 'Buzzy The Bee, A Tale of Triumph on Her First Day at School Book 1',
     image: 'buzzybook1.png',
     seriesname: 'Buzzy',
