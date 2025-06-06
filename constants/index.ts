@@ -105,47 +105,7 @@ export const allbooks = [
     ],
     sample: 'https://heyzine.com/flip-book/6c56778374.html',
   },
-  {
-    id: 'S02',
-    name: 'Starfish Super Squad Book 2 - Coral Reef Heroes',
-    image: 'starfishsupersquadbook2.jpg',
-    slugId: 'starfishsupersquadbook2',
-    shortdescription: 'Starfish Super Squad Book 2 - Coral Reef Heroes',
-    description:
-      'Deep in Coral Cove, two best friends lived under the sea—Shelly, a shy pink starfish, and Spike, a cheerful yellow starfish who loved adventures! One sunny day, they discovered a mysterious treasure map that would change everything. In Book 2, follow Shelly and Spike as they set off on a big adventure and make new friends. But before they can search for treasure, they discover the coral reefs are in trouble!Now, they must work together with their new friends to save the reefs before continuing their quest.',
 
-    longdescription: [
-      'Join Shelly, Spike, and the rest of the Starfish Super Squad in the second book of their 24-book series, as they embark on an exciting mission to protect the coral reefs and uncover even more underwater wonders.',
-    ],
-    ages: '5-8 years',
-    bookType: 'series',
-    seriesname: 'Treasure Map Adventures',
-    serieslink: 'shellyandspike',
-    available: 'yes',
-    buylinks: [
-      {
-        buyname: 'Buy Ebook (Kindler)',
-        buylink: 'https://www.amazon.com/dp/B0D8KX6V12',
-      },
-      {
-        buyname: 'Buy Ebook (Google Play)',
-        buylink: 'https://play.google.com/store/books/details?id=7opfEQAAQBAJ',
-      },
-      {
-        buyname: 'Buy Ebook (Kindler AU)',
-        buylink: 'https://www.amazon.com.au/dp/B0D8KX6V12',
-      },
-      {
-        buyname: 'Buy Paperback',
-        buylink: 'https://www.amazon.com/dp/1923337068',
-      },
-      {
-        buyname: 'Buy Paperback (AU)',
-        buylink: 'https://www.amazon.com.au/dp/1923337068',
-      },
-    ],
-    sample: 'https://heyzine.com/flip-book/6c56778374.html',
-  },
   {
     id: 'S03',
     name: 'Starfish Super Squad Book 3 - The Grumpy Quest',
