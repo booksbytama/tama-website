@@ -29,11 +29,11 @@ const BookListCover = ({ bookType }: { bookType: string }) => {
               </div>
             </div>
 
-            <div className='mt-6 md:ml-4 md:mt-0 lg:ml-0 lg:mt-6'>
+            <div className='mt-6 md:ml-4 md:mt-2 lg:ml-0 lg:mt-6'>
               <h3 className='text-lg font-medium text-gray-900'>
                 {book.seriesname ? book.seriesname : book.shortname}
               </h3>
-              <p className='mt-3 text-base text-muted-foreground'>
+              <p className='mt-3 md:mt-2 text-base text-muted-foreground'>
                 {book.shortdescription}
               </p>
             </div>

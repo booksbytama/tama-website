@@ -70,10 +70,7 @@ module.exports = withUt({
         poppins: ['var(--font-poppins)'],
       },
       backgroundImage: {
-        'dotted-pattern': "url('/assets/images/dotted-pattern.png')",
-        'hero-img': "url('/assets/images/hero.png')",
-        'char-img': "url('/assets/images/chars1.svg')",
-        'billybook-img': "url('/assets/images/billylogo.svg') ",
+        'ocean-background': "url('/assets/images/ocean-background.png')",
       },
       borderRadius: {
         lg: 'var(--radius)',
