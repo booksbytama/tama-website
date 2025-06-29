@@ -100,8 +100,9 @@ export default function AllBooksPage({ params }: BookSlugPageProps) {
                   <p className='p-regular-16 md:p-regular-20 font-semibold'>
                     {book.description}
                   </p>
-                  <div className='font-semibold text-blue-600 p-regular-16 md:p-regular-20'>
-                    Reading Age: {book.ages}
+                  <div className='text-blue-500 p-regular-16 md:p-regular-20'>
+                    <span className='font-semibold'>Reading Ages:</span>{' '}
+                    {book.ages}
                   </div>
                   <div className='p-regular-16 md:p-regular-20 flex flex-col gap-2 '>
                     {book.longdescription &&

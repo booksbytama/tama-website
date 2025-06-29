@@ -35,7 +35,7 @@ export const allbooks = [
     longdescription: [
       'Join Shelly and Spike in the very first book of their 24-book series, packed with exciting discoveries, ocean creatures, and underwater fun. What treasures and secrets will they uncover next?',
     ],
-    ages: '5-8 years',
+    ages: 'Independent 6–10 ★ Read-aloud 4–6',
     bookType: 'series',
     seriesname: 'Treasure Map Adventures',
     serieslink: 'shellyandspike',
@@ -76,7 +76,7 @@ export const allbooks = [
     longdescription: [
       'Join Shelly, Spike, and the rest of the Starfish Super Squad in the second book of their 24-book series, as they embark on an exciting mission to protect the coral reefs and uncover even more underwater wonders.',
     ],
-    ages: '5-8 years',
+    ages: 'Independent 6–10 ★ Read-aloud 4–6',
     bookType: 'series',
     seriesname: 'Treasure Map Adventures',
     serieslink: 'shellyandspike',
@@ -118,7 +118,7 @@ export const allbooks = [
     longdescription: [
       'Join Shelly, Spike, and the rest of the Starfish Super Squad in the second book of their 24-book series, as they embark on an exciting mission to protect the coral reefs and uncover even more underwater wonders.',
     ],
-    ages: '5-8 years',
+    ages: 'Independent 6–10 ★ Read-aloud 4–6',
     bookType: 'series',
     seriesname: 'Treasure Map Adventures',
     serieslink: 'shellyandspike',
