@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { DM_Sans } from 'next/font/google';
+import { GoogleAnalytics } from '@next/third-parties/google';
 import './globals.css';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -26,7 +27,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang='en'>
-      <body className={dm_sans.className}>{children}</body>
+      <body className={dm_sans.className}>
+        {children} <GoogleAnalytics gaId='G-KX1JZYLVMY' />
+      </body>
     </html>
   );
 }
