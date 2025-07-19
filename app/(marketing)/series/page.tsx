@@ -21,9 +21,9 @@ export default function AllSeriesPage() {
               >
                 <p className='mb-2'>Shelly and Spike</p>
                 <Image
-                  src='/assets/images/shellyandspikelogo.png'
+                  src='/assets/images/shellyandspikelogo.svg'
                   alt='shellyandspikelogo'
-                  width={300}
+                  width={400}
                   height={250}
                 />
               </Link>
@@ -37,8 +37,8 @@ export default function AllSeriesPage() {
                 <Image
                   src='/assets/images/billylogo.svg'
                   alt='billylogo'
-                  width={200}
-                  height={200}
+                  width={100}
+                  height={100}
                 />
               </Link>
             </div>
