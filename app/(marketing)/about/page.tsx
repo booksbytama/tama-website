@@ -7,7 +7,7 @@ export default function About() {
         <div className='wrapper flex flex-col gap-4 md:gap-8 items-center justify-center text-center max-w-4xl mx-auto px-4'>
           <div className='p-2 md:p-4'>
             <Image
-              src='/assets/images/Tama.svg'
+              src='/assets/images/newTama.svg'
               alt='Tama avatar'
               width={100}
               height={100}
