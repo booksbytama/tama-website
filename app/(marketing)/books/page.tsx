@@ -1,4 +1,4 @@
-import AllBookCard from './_components/allBookCard';
+import AllBookCard from './_components/AllBook';
 
 export default function AllBooksPage() {
   return (
