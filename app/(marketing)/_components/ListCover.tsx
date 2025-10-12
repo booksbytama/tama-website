@@ -2,6 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 
 import { allbooks } from '@/constants';
+// Add comments because problem with changing file name
 
 const BookListCover = ({ bookType }: { bookType: string }) => {
   return (

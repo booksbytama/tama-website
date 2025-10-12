@@ -1,5 +1,4 @@
 import Hero from '@/components/section/hero';
-
 import BookListCover from './_components/bookListCover';
 
 export default function Home() {
