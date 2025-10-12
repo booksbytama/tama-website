@@ -1,5 +1,5 @@
-import Footer from '@/components/shared/Footer';
-import Header from '@/components/shared/Header';
+import Footer from '@/components/section/footer';
+import Header from '@/components/section/header';
 
 export default function MarketingLayout({
   children,

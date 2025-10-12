@@ -22,7 +22,7 @@ const BuyButton = ({ urlists }: { urlists: Array<any> }) => {
               size='sm'
               asChild
               variant='outline'
-              className='rounded-2xl border-gray-700 text-blue-700  hover:bg-blue-500 shadow-md hover:text-white w-full'
+              className='font-body rounded-2xl border-blue-500  text-blue-700  hover:bg-blue-500 shadow-md hover:text-white w-full'
             >
               <Link
                 href={buylist.buylink}

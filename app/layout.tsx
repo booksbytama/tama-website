@@ -1,15 +1,31 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
-import { DM_Sans } from 'next/font/google';
-import { GoogleAnalytics } from '@next/third-parties/google';
+import { Geist, Geist_Mono, Fredoka, Quicksand } from 'next/font/google';
 import './globals.css';
 
-const inter = Inter({ subsets: ['latin'] });
-const dm_sans = DM_Sans({ subsets: ['latin'], weight: ['400', '500', '700'] });
+const geistSans = Geist({
+  variable: '--font-geist-sans',
+  subsets: ['latin'],
+});
+
+const geistMono = Geist_Mono({
+  variable: '--font-geist-mono',
+  subsets: ['latin'],
+});
+
+const fredoka = Fredoka({
+  variable: '--font-fredoka',
+  subsets: ['latin'],
+});
+
+const quicksand = Quicksand({
+  variable: '--font-quicksan',
+  subsets: ['latin'],
+});
 
 export const metadata: Metadata = {
-  title: 'Tama Books',
-  description: 'Books By Tama',
+  title: 'Books By Tama',
+  description:
+    "Dive into fun, illustrated children's books about ocean animals, friendship, and adventure. Perfect for ages 4–10. Shop books, activities & teacher tools!",
   icons: {
     icon: [
       {
@@ -27,8 +43,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang='en'>
-      <body className={dm_sans.className}>
-        {children} <GoogleAnalytics gaId='G-KX1JZYLVMY' />
+      <body className={`${quicksand.variable} ${fredoka.variable} antialiased`}>
+        {children}
       </body>
     </html>
   );

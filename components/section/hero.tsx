@@ -2,7 +2,7 @@ import Image from 'next/image';
 
 export default function Hero() {
   return (
-    <section className=' bg-ocean-background bg-contain object-cover object-center'>
+    <section className='bg-[url(/assets/images/ocean-background.png)] bg-contain object-cover object-center'>
       <div className='flex flex-col items-center md:grid-cols-1 2xl:gap-0'>
         <Image
           src='/assets/images/hero.png'

@@ -1,23 +1,24 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, use } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
+import BuyButton from '../_components/BuyButton';
 
-//import AllBookCard from '@/components/shared/AllBookCard';
 import { allbooks } from '@/constants';
-import BuyButton from '../../../../components/shared/BuyButton';
+// import BuyButton from '../../../../components/shared/BuyButton';
 import React from 'react';
 import { Separator } from '@/components/ui/separator';
 
 interface BookSlugPageProps {
-  params: {
+  params: Promise<{
     slugId: string;
-  };
+  }>;
 }
 
-export default function AllBooksPage({ params }: BookSlugPageProps) {
+export default function AllBooksPage(props: BookSlugPageProps) {
+  const params = use(props.params);
   const [shown, setShown] = useState(false);
 
   return (
@@ -26,20 +27,22 @@ export default function AllBooksPage({ params }: BookSlugPageProps) {
         .filter((book) => book.slugId === params.slugId)
         .map((book) => (
           <div key={book.id}>
-            <section className='bg-primary-50  bg-no-repeat bg-right-center first-letter:py-5 md:py-10'>
+            {/* Heading */}
+            <section className='font-heading bg-blue-50 py-3 md:py-5'>
               <div className='wrapper flex flex-col justify-center gap-8 items-center '>
-                <h1 className='h1-bold text-blue-500'>
-                  {book.seriesname ? book.seriesname : book.shortname}
+                <h1 className='font-heading text-3xl md:text-4xl text-blue-500'>
+                  {book.seriesname ? book.seriesname : ''}
                 </h1>
-                <h2 className='h2-bold text-blue-400'>
+                <h2 className='font-heading text-2xl md:text-3xl text-blue-500'>
                   {book.shortdescription}
                 </h2>
               </div>
             </section>
-            <section className='py-5 md:py-10 wrapper'>
-              <div className='grid grid-cols-1 md:grid-cols-2  gap-8 mt-6 place-items-center md:px-20'>
+            {/* Content */}
+            <section className='font-body py-5 md:py-10 wrapper'>
+              <div className='grid grid-cols-1 md:grid-cols-2 gap-8 mt-6  md:px-20'>
                 {/* Coloum 1 */}
-                <div className='flex flex-col place-items-center gap-2  md:gap-6'>
+                <div className=' flex flex-col place-items-center gap-2  md:gap-4 '>
                   {!shown && (
                     <Link href={`/books/${book.slugId}`}>
                       <Image
@@ -56,7 +59,6 @@ export default function AllBooksPage({ params }: BookSlugPageProps) {
                     {book.sample && shown && (
                       <iframe
                         allowFullScreen
-                        scrolling='no'
                         className='fp-iframe'
                         src={book.sample}
                         style={{
@@ -71,7 +73,7 @@ export default function AllBooksPage({ params }: BookSlugPageProps) {
                     {' '}
                     {book.sample && (
                       <Button
-                        className='bg-blue-500 hover:bg-blue-700 mb-4'
+                        className='font-body bg-blue-500 hover:bg-blue-700 mb-4'
                         onClick={() => setShown(!shown)}
                       >
                         {' '}
@@ -96,47 +98,37 @@ export default function AllBooksPage({ params }: BookSlugPageProps) {
                 </div>
 
                 {/* Columun 2 */}
-                <div className='flex flex-col gap-2 md:gap-8 '>
-                  <p className='p-regular-16 md:p-regular-20 font-semibold'>
-                    {book.description}
-                  </p>
-                  <div className='text-blue-500 p-regular-16 md:p-regular-20'>
-                    <span className='font-semibold'>Reading Ages:</span>{' '}
-                    {book.ages}
-                  </div>
-                  <div className='p-regular-16 md:p-regular-20 flex flex-col gap-2 '>
+                <div className='font-body text-base md:text-lg leading-relaxed flex flex-col gap-2 md:gap-8'>
+                  <p>{book.description}</p>
+
+                  {/* <div className='flex flex-col gap-2 '>
                     {book.longdescription &&
                       book.longdescription.map((desc, index) => (
                         <div key={index} className='pb-2'>
                           {desc}
                         </div>
                       ))}
-                  </div>
+                  </div> */}
                 </div>
               </div>
             </section>
           </div>
         ))}
+
+      {/* End Section */}
       <Separator className='border border-gray-100' />
-      <div className='wrapper flex flex-col md:flex-row md:place-content-center  gap-4 mt-10 mb-10'>
+      <div className='wrapper  flex flex-col md:flex-row md:place-content-center  gap-4 mt-10 mb-10'>
         <Button
           variant='ghost'
           size='lg'
-          className='text-lg bg-primary-50 text-blue-500 hover:text-blue-700 hover:bg-blue-200'
-        >
-          <Link href='/series'>All Series</Link>
-        </Button>
-        <Button
-          variant='ghost'
-          size='lg'
-          className='text-lg bg-primary-50 text-blue-500 hover:text-blue-700 hover:bg-blue-200'
+          className='text-xl font-body bg-primary-50 text-blue-500 hover:text-blue-700 hover:bg-blue-200'
         >
           <Link href='/books'>All Books</Link>
         </Button>
         <Button
           variant='ghost'
           size='lg'
-          className='text-lg bg-primary-50 text-blue-500 hover:text-blue-700 hover:bg-blue-200'
+          className='text-xl font-body bg-primary-50 text-blue-500 hover:text-blue-700 hover:bg-blue-200'
         >
           <Link href='/'>Home</Link>
         </Button>
