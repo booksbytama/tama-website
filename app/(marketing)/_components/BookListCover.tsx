@@ -28,7 +28,7 @@ const BookListCover = ({ bookType }: { bookType: string }) => {
 
             <div className='mt-6 md:ml-4 md:mt-2 lg:ml-0 lg:mt-6'>
               <h3 className='text-lg font-semibold text-gray-700'>
-                {book.seriesname ? book.seriesname : book.shortname}
+                {book.seriesname ? book.seriesname : ''}
               </h3>
               <p className='mt-3 md:mt-2 text-base text-muted-foreground'>
                 {book.shortdescription}
