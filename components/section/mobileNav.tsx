@@ -24,12 +24,12 @@ const MobileNav = () => {
           />
         </SheetTrigger>
         <SheetContent className='flex flex-col gap-6 bg-white md:hidden w-60'>
-          <Image
-            src='/assets/images/logo.png'
+          {/* <Image
+            src='/assets/images/newTama.svg'
             alt='logo'
-            width={128}
-            height={38}
-          />
+            width={40}
+            height={24}
+          /> */}
           <Separator className='border border-gray-50' />
 
           <NavItems />
