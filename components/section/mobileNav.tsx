@@ -1,14 +1,15 @@
+import Link from 'next/link';
 import {
   Sheet,
   SheetContent,
-  SheetDescription,
-  SheetHeader,
   SheetTitle,
   SheetTrigger,
+  SheetClose,
 } from '@/components/ui/sheet';
 import Image from 'next/image';
 import { Separator } from '../ui/separator';
 import NavItems from './navItems';
+import { headerLinks } from '@/constants';
 
 const MobileNav = () => {
   return (
@@ -32,8 +33,18 @@ const MobileNav = () => {
           /> */}
           <SheetTitle>menu</SheetTitle>
           <Separator className='border border-gray-50' />
-
-          <NavItems />
+          <ul className='flex w-full flex-col items-center gap-5 tracking-wider'>
+            {headerLinks.map((link) => (
+              <li key={link.route}>
+                <SheetClose asChild>
+                  <Link href={link.route} className='block py-1'>
+                    {link.label}
+                  </Link>
+                </SheetClose>
+              </li>
+            ))}
+          </ul>
+          {/* <NavItems /> */}
         </SheetContent>
       </Sheet>
     </nav>
