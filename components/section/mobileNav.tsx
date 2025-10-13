@@ -30,6 +30,7 @@ const MobileNav = () => {
             width={40}
             height={24}
           /> */}
+          <SheetTitle>menu</SheetTitle>
           <Separator className='border border-gray-50' />
 
           <NavItems />
