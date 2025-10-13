@@ -51,7 +51,7 @@ export default function Activities() {
           </p>
 
           <div className='flex flex-col sm:flex-row gap-4 mt-2 md:mt-4  p-4'>
-            <div className='p-2 border-2 rounded-2xl w-30 shadow-lg  border-grey-600 flex flex-col gap-2 items-center text-blue-400'>
+            <div className='p-2 border-2 rounded-2xl w-30 shadow-md  border-blue-300 shadow-blue-300 flex flex-col gap-2 items-center text-blue-400'>
               <Link
                 href='#setA'
                 className=' font-body font-semibold text-xl  items-center flex flex-col   '
@@ -59,7 +59,7 @@ export default function Activities() {
                 <p>Set A</p>
               </Link>
             </div>
-            <div className='p-2 border-2 rounded-2xl w-30 shadow-lg border-grey-600 flex flex-col gap-2 items-center text-blue-400'>
+            <div className='p-2 border-2 rounded-2xl w-30 shadow-md  flex flex-col gap-2 items-center border-blue-300 shadow-blue-300  text-blue-400'>
               <Link
                 href='#setB'
                 className='font-body font-semibold text-xl  items-center flex flex-col'
