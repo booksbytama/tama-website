@@ -8,6 +8,10 @@ export const headerLinks = [
     label: 'ALL BOOKS',
     route: '/books',
   },
+  {
+    label: 'ACTIVITIES',
+    route: '/activities',
+  },
 
   {
     label: 'ABOUT',
