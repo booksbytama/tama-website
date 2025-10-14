@@ -7,7 +7,7 @@ export default function Activities() {
       {/* Heading section */}
       <section className='bg-[url(/assets/images/ocean-background.png)] bg-contain  object-center'>
         <div className='relative'>
-          <h1 className='font-heading text-4xl md:text-5xl text-white absolute inset-0 flex items-center justify-center tracking-widest '>
+          <h1 className='font-body text-3xl font-semibold md:text-5xl text-white absolute inset-0 flex items-center justify-center  '>
             ACTIVITIES
           </h1>
           <div className='flex flex-col items-center md:grid-cols-1 2xl:gap-0'>
