@@ -92,10 +92,7 @@ export default function Activities() {
                   <h3 className='font-heading  text-3xl md:text-4xl text-blue-500 text-center p-6 inline-flex size-10 items-center justify-center rounded-full border-2 border-current font-semibold self-center'>
                     1{' '}
                   </h3>
-                  {/* <p className='text-base md:text-lg text-left mt-4'>
-                  <span className='font-semibold'>Seddon shop</span> that starts
-                  with ‘19…’
-                </p> */}
+
                   <p className='text-base md:text-lg text-left mt-4'>
                     <span className='font-semibold'>Seddon:</span> Shop starts
                     with ‘H’ — independent greengrocer known for fresh fruit &
@@ -127,8 +124,8 @@ export default function Activities() {
                   with ‘19…’
                 </p> */}
                   <p className='text-base md:text-lg text-left mt-4'>
-                    <span className='font-semibold'>The clue</span> - is coming
-                    soon
+                    <span className='font-semibold'>Clue coming soon!</span>{' '}
+                    Check back here for the next location.
                   </p>
                 </div>
               </div>
@@ -187,13 +184,9 @@ export default function Activities() {
                     1{' '}
                   </h3>
                   <p className='text-base md:text-lg text-left mt-4'>
-                    <span className='font-semibold'>The clue</span> - is coming
-                    soon
+                    <span className='font-semibold'>Clue coming soon!</span>{' '}
+                    Check back here for the next location.
                   </p>
-                  {/* <p className='text-base md:text-lg text-left'>
-                  <span className='font-semibold'>Yarraville shop</span> that
-                  starts with ‘Ic…’
-                </p> */}
                 </div>
               </div>
               {/* Row 2 */}
@@ -216,8 +209,8 @@ export default function Activities() {
                     2{' '}
                   </h3>
                   <p className='text-base md:text-lg text-left mt-4'>
-                    <span className='font-semibold'>The clue</span> - is coming
-                    soon
+                    <span className='font-semibold'>Clue coming soon!</span>{' '}
+                    Check back here for the next location.
                   </p>
                 </div>
               </div>
@@ -242,8 +235,8 @@ export default function Activities() {
                     3{' '}
                   </h3>
                   <p className='text-base md:text-lg text-left mt-4'>
-                    <span className='font-semibold'>The clue</span> - is coming
-                    soon
+                    <span className='font-semibold'>Clue coming soon!</span>{' '}
+                    Check back here for the next location.
                   </p>
                 </div>
               </div>
