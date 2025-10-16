@@ -124,8 +124,9 @@ export default function Activities() {
                   with ‘19…’
                 </p> */}
                   <p className='text-base md:text-lg text-left mt-4'>
-                    <span className='font-semibold'>Clue coming soon!</span>{' '}
-                    Check back here for the next location.
+                    <span className='font-semibold'>Seddon: </span>
+                    Family-friendly café by Seddon Station that starts with
+                    ‘F’—courtyard & play cubby.
                   </p>
                 </div>
               </div>
@@ -151,7 +152,7 @@ export default function Activities() {
                   </h3>
 
                   <p className='text-base md:text-lg text-left mt-4'>
-                    <span className='font-semibold'>Seddon:</span> A family-run
+                    <span className='font-semibold'>Seddon: </span> A family-run
                     café on Victoria St that starts with ‘A’; famous for
                     pastries & coffee.
                   </p>
@@ -184,7 +185,7 @@ export default function Activities() {
                     1{' '}
                   </h3>
                   <p className='text-base md:text-lg text-left mt-4'>
-                    <span className='font-semibold'>Seddon</span> Café on
+                    <span className='font-semibold'>Seddon: </span> Café on
                     Charles St that starts with ‘19’ — spacious rooms & a sunny
                     courtyard.
                   </p>
@@ -240,8 +241,11 @@ export default function Activities() {
                     3{' '}
                   </h3>
                   <p className='text-base md:text-lg text-left mt-4'>
-                    <span className='font-semibold'>Clue coming soon!</span>{' '}
-                    Check back here for the next location.
+                    <p className='text-base md:text-lg text-left mt-4'>
+                      <span className='font-semibold'>Seddon: </span>
+                      Family-friendly café by Seddon Station that starts with
+                      ‘F’—courtyard & play cubby.
+                    </p>
                   </p>
                 </div>
               </div>
