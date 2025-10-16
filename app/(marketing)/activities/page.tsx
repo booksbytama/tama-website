@@ -210,10 +210,7 @@ export default function Activities() {
                   <h3 className='font-heading  text-3xl md:text-4xl text-blue-500 text-center p-6 inline-flex size-10 items-center justify-center rounded-full border-2 border-current font-semibold self-center'>
                     2{' '}
                   </h3>
-                  {/* <p className='text-base md:text-lg text-left mt-4'>
-                    <span className='font-semibold'>Seddon</span> Baby & toddler
-                    boutique that begins with ‘B’ — find it on Charles St.
-                  </p> */}
+
                   <p className='text-base md:text-lg text-left mt-4'>
                     <span className='font-semibold'>Clue coming soon!</span>{' '}
                     Check back here for the next location.
