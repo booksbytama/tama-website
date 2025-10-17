@@ -241,7 +241,7 @@ export default function Activities() {
                   <p className='text-base md:text-lg text-left mt-4'>
                     <span className='font-semibold'>Seddon: </span>
                     Family-friendly café by Seddon Station that starts with
-                    ‘F’—courtyard & play cubby.
+                    ‘F’—courtyard & play cubby.git
                   </p>
                 </div>
               </div>
