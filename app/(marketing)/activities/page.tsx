@@ -212,8 +212,9 @@ export default function Activities() {
                   </h3>
 
                   <p className='text-base md:text-lg text-left mt-4'>
-                    <span className='font-semibold'>Clue coming soon!</span>{' '}
-                    Check back here for the next location.
+                    <span className='font-semibold'>Seddon: </span> Café starts
+                    with ‘T’ — in the former post office on Victoria Street,
+                    with bright interiors and a homey feel.
                   </p>
                 </div>
               </div>
@@ -238,11 +239,9 @@ export default function Activities() {
                     3{' '}
                   </h3>
                   <p className='text-base md:text-lg text-left mt-4'>
-                    <p className='text-base md:text-lg text-left mt-4'>
-                      <span className='font-semibold'>Seddon: </span>
-                      Family-friendly café by Seddon Station that starts with
-                      ‘F’—courtyard & play cubby.
-                    </p>
+                    <span className='font-semibold'>Seddon: </span>
+                    Family-friendly café by Seddon Station that starts with
+                    ‘F’—courtyard & play cubby.
                   </p>
                 </div>
               </div>
