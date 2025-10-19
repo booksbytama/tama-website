@@ -43,8 +43,8 @@ export default function Activities() {
           </h1>
           <p className='font-body text-base md:text-lg leading-relaxed'>
             Join the Starfish Super Squad on a local treasure hunt! 🧭 Each
-            colouring page is hidden in a nearby shop in Seddon and Yarraville —
-            can you find them all?
+            colouring page is hidden in a nearby shop in Seddon, Yarraville and
+            West Footscray — can you find them all?
           </p>
           <p className='font-body text-base font-semibold md:text-lg leading-relaxed'>
             Follow the clues below to collect every page in the set.
@@ -185,9 +185,14 @@ export default function Activities() {
                     1{' '}
                   </h3>
                   <p className='text-base md:text-lg text-left mt-4'>
-                    <span className='font-semibold'>Seddon: </span> Café on
+                    <span className='font-semibold'>Seddon:</span> Café on
                     Charles St that starts with ‘19’ — spacious rooms & a sunny
                     courtyard.
+                  </p>
+                  <p className='text-base md:text-lg text-left mt-4'>
+                    <span className='font-semibold'>West Footscray:</span>{' '}
+                    Bookshop starts with ‘C’ — filled with stories, plants, and
+                    local charm in the heart of Barkly Street.
                   </p>
                 </div>
               </div>
@@ -216,6 +221,11 @@ export default function Activities() {
                     with ‘T’ — in the former post office on Victoria Street,
                     with bright interiors and a homey feel.
                   </p>
+                  <p className='text-base md:text-lg text-left mt-4'>
+                    <span className='font-semibold'>West Footscray:</span>{' '}
+                    Bookshop starts with ‘C’ — filled with stories, plants, and
+                    local charm in the heart of Barkly Street.
+                  </p>
                 </div>
               </div>
 
@@ -241,7 +251,12 @@ export default function Activities() {
                   <p className='text-base md:text-lg text-left mt-4'>
                     <span className='font-semibold'>Seddon: </span>
                     Family-friendly café by Seddon Station that starts with
-                    ‘F’—courtyard & play cubby.git
+                    ‘F’—courtyard & play cubby.
+                  </p>
+                  <p className='text-base md:text-lg text-left mt-4'>
+                    <span className='font-semibold'>West Footscray:</span>{' '}
+                    Bookshop starts with ‘C’ — filled with stories, plants, and
+                    local charm in the heart of Barkly Street.
                   </p>
                 </div>
               </div>
