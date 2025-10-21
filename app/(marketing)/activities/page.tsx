@@ -98,6 +98,11 @@ export default function Activities() {
                     with ‘H’ — independent greengrocer known for fresh fruit &
                     veg, with a deli.
                   </p>
+                  <p className='text-base md:text-lg text-left mt-4'>
+                    <span className='font-semibold'>Seddon:</span> Café starts
+                    with ‘L’ — Spanish-Portuguese inspired, with a kids’ corner
+                    and warm local vibe on Charles Street.
+                  </p>
                 </div>
               </div>
               {/* Row 2 */}
@@ -119,10 +124,7 @@ export default function Activities() {
                   <h3 className='font-heading  text-3xl md:text-4xl text-blue-500 text-center p-6 inline-flex size-10 items-center justify-center rounded-full border-2 border-current font-semibold self-center'>
                     2{' '}
                   </h3>
-                  {/* <p className='text-base md:text-lg text-left mt-4'>
-                  <span className='font-semibold'>Seddon shop</span> that starts
-                  with ‘19…’
-                </p> */}
+
                   <p className='text-base md:text-lg text-left mt-4'>
                     <span className='font-semibold'>Seddon: </span>
                     Family-friendly café by Seddon Station that starts with
@@ -155,6 +157,11 @@ export default function Activities() {
                     <span className='font-semibold'>Seddon: </span> A family-run
                     café on Victoria St that starts with ‘A’; famous for
                     pastries & coffee.
+                  </p>
+                  <p className='text-base md:text-lg text-left mt-4'>
+                    <span className='font-semibold'>Seddon: </span>
+                    Bakery starts with ‘S’ — warm bread, yummy pastries, and big
+                    smiles on Victoria Street!
                   </p>
                 </div>
               </div>
@@ -190,6 +197,12 @@ export default function Activities() {
                     courtyard.
                   </p>
                   <p className='text-base md:text-lg text-left mt-4'>
+                    <span className='font-semibold'>Seddon:</span> Café starts
+                    with ‘L’ — Spanish-Portuguese inspired, with a kids’ corner
+                    and warm local vibe on Charles Street.
+                  </p>
+
+                  <p className='text-base md:text-lg text-left mt-4'>
                     <span className='font-semibold'>West Footscray:</span>{' '}
                     Bookshop starts with ‘C’ — filled with stories, plants, and
                     local charm in the heart of Barkly Street.
@@ -220,6 +233,11 @@ export default function Activities() {
                     <span className='font-semibold'>Seddon: </span> Café starts
                     with ‘T’ — in the former post office on Victoria Street,
                     with bright interiors and a homey feel.
+                  </p>
+                  <p className='text-base md:text-lg text-left mt-4'>
+                    <span className='font-semibold'>Seddon:</span> Café starts
+                    with ‘L’ — Spanish-Portuguese inspired, with a kids’ corner
+                    and warm local vibe on Charles Street.
                   </p>
                   <p className='text-base md:text-lg text-left mt-4'>
                     <span className='font-semibold'>West Footscray:</span>{' '}
