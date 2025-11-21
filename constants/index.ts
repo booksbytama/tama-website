@@ -3,11 +3,15 @@ export const headerLinks = [
     label: 'HOME',
     route: '/',
   },
-
+  {
+    label: 'BUY',
+    route: '/buy',
+  },
   {
     label: 'ALL BOOKS',
     route: '/books',
   },
+
   {
     label: 'ACTIVITIES',
     route: '/activities',
@@ -23,6 +27,24 @@ export const headerLinks = [
   },
 ];
 
+export const quickbuyLink = [
+  {
+    provider: 'Amazon(US)',
+    url: '',
+  },
+  {
+    provider: 'Amazon(AU)',
+    url: '',
+  },
+  {
+    provider: 'Google Play',
+    url: '',
+  },
+  {
+    provider: 'Buy Local',
+    url: '',
+  },
+];
 export const allbooks = [
   {
     id: 'S01',
