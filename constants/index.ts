@@ -173,6 +173,32 @@ export const allbooks = [
     ],
     sample: 'https://heyzine.com/flip-book/91e1dcc072.html',
   },
+  {
+    id: 'C01',
+    name: 'Ocean Adventure Colouring Book',
+    image: 'oceancolour1.jpg',
+    slugId: 'oceancolour1',
+    shortdescription:
+      'Ocean Adventure Colouring Book - A Relaxing and Creative Journey Through 40 Connected Underwater Scenes',
+    description:
+      'Dive into calm, creativity, and ocean wonder with Ocean Adventure Colouring Book—a hand-drawn collection of 40 connected underwater scenes that come together to form one stunning ocean masterpiece.Designed for kids, teens, adults—and anyone who loves the sea. Whether you’re searching for a coloring book for teens or a heartfelt gift for ocean loving moms, this bold, easy and cozy collection brings underwater magic to every page.',
+
+    bookType: 'series',
+    seriesname: 'Ocean Adventure Colouring Book',
+    serieslink: 'OceanAdventureColour',
+    available: 'yes',
+    buylinks: [
+      {
+        buyname: 'Buy from Amazon (US)',
+        buylink: 'https://www.amazon.com/dp/B0FZBHGVZN',
+      },
+      {
+        buyname: 'Buy from Amazon (AU)',
+        buylink: 'https://www.amazon.com.au/dp/B0FZBHGVZN',
+      },
+    ],
+    sample: 'https://heyzine.com/flip-book/43ff027bd4.html',
+  },
 ];
 
 export const eventDefaultValues = {
