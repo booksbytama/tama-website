@@ -199,6 +199,32 @@ export const allbooks = [
     ],
     sample: 'https://heyzine.com/flip-book/43ff027bd4.html',
   },
+  {
+    id: 'C02',
+    name: 'Christmas Cutie Colouring Book',
+    image: 'xmascolour.png',
+    slugId: 'xmascolour',
+    shortdescription:
+      'Christmas Cutie Colouring Book - 52 Bold and Easy Designs for Kids, Teens and Adults',
+    description:
+      'Christmas Cutie Colouring Book is filled with 52 cute, hand-drawn Christmas designs made for relaxing and joyful colouring. Enjoy simple, cosy pages featuring festive characters, holiday treats, snowy scenes and more — perfect for adults, teens and kids who love adorable art.',
+
+    bookType: 'series',
+    seriesname: 'Cutie Colouring Book',
+    serieslink: 'CutieColour',
+    available: 'yes',
+    buylinks: [
+      {
+        buyname: 'Buy from Amazon (US)',
+        buylink: 'https://www.amazon.com/dp/B0G539N3BF',
+      },
+      {
+        buyname: 'Buy from Amazon (AU)',
+        buylink: 'https://www.amazon.com.au/dp/B0G539N3BF',
+      },
+    ],
+    sample: 'https://heyzine.com/flip-book/0af9413d40.html',
+  },
 ];
 
 export const eventDefaultValues = {
