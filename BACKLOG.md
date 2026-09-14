@@ -12,6 +12,12 @@ Items deferred from the 2026-09 rebuild. Not scheduled.
 
 - **Teachers & Schools in top nav** — currently footer-only. Promote to the main nav once there's a real page behind it (bulk orders, classroom packs, teacher resources). Not for this build.
 
+## Reading experience
+
+- **Read-aloud narration** — audio per book with word highlighting. The strongest kid-facing feature and the intended subscription hook; needs recorded audio per title.
+- **Page-curl animation** — CSS 3D page turn in the reader. Nice-to-have; ~a day of work.
+- **Account / welcome area redesign** — owner isn't happy with the look and feel; revisit on the mockup canvas.
+
 ## Later phases (already agreed, not yet scheduled)
 
 - Full-book reading for logged-in members.
