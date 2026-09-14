@@ -93,15 +93,18 @@ export function BookReader({ book, pages, startPage, isSample, profile, signedIn
     else void rootRef.current?.requestFullscreen?.();
   };
 
-  // Preload neighbours
+  // Fetch AND decode the pages around the current one so a turn paints instantly.
+  const decoded = useRef(new Set<number>());
   useEffect(() => {
-    [current + 1, current + 2].forEach((n) => {
+    const wanted = [current - 2, current - 1, current + 1, current + 2, current + 3, current + 4];
+    for (const n of wanted) {
       const p = pages.find((x) => x.page_number === n);
-      if (p) {
-        const img = new window.Image();
-        img.src = p.url;
-      }
-    });
+      if (!p || decoded.current.has(n)) continue;
+      decoded.current.add(n);
+      const img = new window.Image();
+      img.src = p.url;
+      img.decode().catch(() => decoded.current.delete(n));
+    }
   }, [current, pages]);
 
   const touchX = useRef<number | null>(null);
@@ -162,10 +165,10 @@ export function BookReader({ book, pages, startPage, isSample, profile, signedIn
               return (
                 <div
                   key={n}
-                  className='relative h-full min-w-0 bg-[#f7fbff]'
+                  className='relative h-full min-w-0 bg-[#f7fbff] animate-in fade-in duration-200'
                   style={{ aspectRatio: ratio, maxWidth: spread.length === 2 ? '50%' : '100%' }}
                 >
-                  <Image src={p.url} alt={`${book.title} page ${n}`} fill unoptimized priority draggable={false} sizes='100vw' className='object-contain' />
+                  <Image src={p.url} alt={`${book.title} page ${n}`} fill unoptimized priority draggable={false} sizes='100vw' decoding='sync' className='object-contain' />
                 </div>
               );
             })}
