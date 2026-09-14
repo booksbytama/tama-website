@@ -16,6 +16,7 @@ Items deferred from the 2026-09 rebuild. Not scheduled.
 
 - **Read-aloud narration** — audio per book with word highlighting. The strongest kid-facing feature and the intended subscription hook; needs recorded audio per title.
 - **Page-curl animation** — shipped 2026-09-15 (tap, swipe, arrows, drag-the-corner). Demo: https://claude.ai/code/artifact/765739dc-6cfc-47bb-8a58-af24c4f2706c
+- **"Show the words" panel** — extract page text with pdf.js at upload and offer it in large type under the picture; possible read-aloud companion. Depends on PDFs having real (not outlined) text.
 - **Account / welcome area redesign** — owner isn't happy with the look and feel; revisit on the mockup canvas.
 
 ## Later phases (already agreed, not yet scheduled)
