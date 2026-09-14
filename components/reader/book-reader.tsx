@@ -31,6 +31,8 @@ export function BookReader({ book, pages, startPage, isSample, memberFullBook, p
   const [saved, setSaved] = useState<'idle' | 'saving' | 'saved'>('idle');
   const [moving, setMoving] = useState<number | null>(null);
   const [dragAngle, setDragAngle] = useState<{ k: number; deg: number } | null>(null);
+  const [zoom, setZoom] = useState({ s: 1, x: 0, y: 0 });
+  const zoomed = zoom.s > 1.02;
   const rootRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
   const [stage, setStage] = useState({ w: 0, h: 0 });
@@ -63,6 +65,7 @@ export function BookReader({ book, pages, startPage, isSample, memberFullBook, p
 
   const turnTo = useCallback(
     (t: number, sheet: number) => {
+      setZoom({ s: 1, x: 0, y: 0 });
       setMoving(sheet);
       setCurrent(pageFor(t));
       setTimeout(() => setMoving(null), TURN_MS + 50);
@@ -134,24 +137,93 @@ export function BookReader({ book, pages, startPage, isSample, memberFullBook, p
     }
   }, [current, pages]);
 
-  // Tap / swipe / drag-the-corner, all through pointer events on the book.
+  // Book box from the stage: pages share the first page's aspect ratio.
+  const p0 = pages[0] as Page | undefined;
+  const ratio = p0?.width && p0?.height ? p0.width / p0.height : 1;
+  const pageH = Math.min(stage.h, (twoUp ? stage.w / 2 : stage.w) / ratio);
+  const bookW = (twoUp ? 2 : 1) * pageH * ratio;
+
+  // Tap / swipe / drag-the-corner / pinch-zoom, all through pointer events on the book.
   const drag = useRef<{ k: number; forward: boolean; startX: number; startT: number; width: number; moved: boolean } | null>(null);
+  const pointers = useRef(new Map<number, { x: number; y: number }>());
+  const pinch = useRef<{ dist: number; mid: { x: number; y: number }; s: number; x: number; y: number } | null>(null);
+  const pan = useRef<{ x: number; y: number; zx: number; zy: number } | null>(null);
+  const lastTap = useRef<{ t: number; x: number; y: number } | null>(null);
+
+  const clampZoom = (z: { s: number; x: number; y: number }, w: number, h: number) => {
+    const s = Math.max(1, Math.min(3.5, z.s));
+    const mx = ((s - 1) * w) / 2;
+    const my = ((s - 1) * h) / 2;
+    return { s, x: Math.max(-mx, Math.min(mx, z.x)), y: Math.max(-my, Math.min(my, z.y)) };
+  };
+  // Zoom about a screen point (px relative to the box's untransformed centre).
+  const zoomAbout = (nextS: number, px: number, py: number, rect: DOMRect) => {
+    setZoom((z) => {
+      const q = { x: (px - z.x) / z.s, y: (py - z.y) / z.s };
+      return clampZoom({ s: nextS, x: px - nextS * q.x, y: py - nextS * q.y }, rect.width, rect.height);
+    });
+  };
+  // The box is centred in the stage, so its untransformed rect is derivable even while scaled.
+  const boxRect = (): DOMRect => {
+    const r = stageRef.current!.getBoundingClientRect();
+    return new DOMRect(r.left + (r.width - bookW) / 2, r.top + (r.height - pageH) / 2, bookW, pageH);
+  };
+  const rel = (e: { clientX: number; clientY: number }, rect: DOMRect) => ({ x: e.clientX - rect.left - rect.width / 2, y: e.clientY - rect.top - rect.height / 2 });
+
   const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (busy || showGate || e.button !== 0) return;
-    const rect = e.currentTarget.getBoundingClientRect();
-    const onRight = twoUp ? e.clientX > rect.left + rect.width / 2 : e.clientX > rect.left + rect.width * 0.5;
-    const k = onRight ? turned : turned - 1;
-    if (onRight && turned >= maxTurned) {
-      setShowGate(true);
+    if (showGate) return;
+    const rect = boxRect();
+    e.currentTarget.setPointerCapture(e.pointerId);
+    pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+    if (pointers.current.size === 2) {
+      // Second finger: start a pinch, abandon any page drag.
+      drag.current = null;
+      pan.current = null;
+      setDragAngle(null);
+      const [a, b] = [...pointers.current.values()];
+      const mid = rel({ clientX: (a.x + b.x) / 2, clientY: (a.y + b.y) / 2 }, rect);
+      pinch.current = { dist: Math.hypot(a.x - b.x, a.y - b.y), mid, s: zoom.s, x: zoom.x, y: zoom.y };
       return;
     }
-    if (k < 0 || k >= sheetCount) return;
+    if (pointers.current.size > 2) return;
+
+    if (zoomed) {
+      pan.current = { x: e.clientX, y: e.clientY, zx: zoom.x, zy: zoom.y };
+      return;
+    }
+    if (busy || e.button !== 0) return;
+    const onRight = e.clientX > rect.left + rect.width / 2;
+    const k = onRight ? turned : turned - 1;
+    if (k < 0 || k >= sheetCount) {
+      drag.current = { k: -1, forward: onRight, startX: e.clientX, startT: Date.now(), width: rect.width, moved: false };
+      return;
+    }
     drag.current = { k, forward: onRight, startX: e.clientX, startT: Date.now(), width: twoUp ? rect.width / 2 : rect.width, moved: false };
-    e.currentTarget.setPointerCapture(e.pointerId);
   };
+
   const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!pointers.current.has(e.pointerId)) return;
+    pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    const rect = boxRect();
+
+    if (pinch.current && pointers.current.size >= 2) {
+      const [a, b] = [...pointers.current.values()];
+      const dist = Math.hypot(a.x - b.x, a.y - b.y);
+      const mid = rel({ clientX: (a.x + b.x) / 2, clientY: (a.y + b.y) / 2 }, rect);
+      const p0 = pinch.current;
+      const s = Math.max(1, Math.min(3.5, (p0.s * dist) / p0.dist));
+      const q = { x: (p0.mid.x - p0.x) / p0.s, y: (p0.mid.y - p0.y) / p0.s };
+      setZoom(clampZoom({ s, x: mid.x - s * q.x, y: mid.y - s * q.y }, rect.width, rect.height));
+      return;
+    }
+    if (pan.current) {
+      const p0 = pan.current;
+      setZoom((z) => clampZoom({ s: z.s, x: p0.zx + (e.clientX - p0.x), y: p0.zy + (e.clientY - p0.y) }, rect.width, rect.height));
+      return;
+    }
     const d = drag.current;
-    if (!d) return;
+    if (!d || d.k < 0) return;
     const dx = e.clientX - d.startX;
     if (Math.abs(dx) > 6) d.moved = true;
     if (!d.moved) return;
@@ -159,24 +231,73 @@ export function BookReader({ book, pages, startPage, isSample, memberFullBook, p
     const deg = Math.max(-180, Math.min(0, base + Math.max(-180, Math.min(180, (-dx / d.width) * 180))));
     setDragAngle({ k: d.k, deg });
   };
+
   const onPointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
+    const rect = boxRect();
+    pointers.current.delete(e.pointerId);
+    if (pinch.current) {
+      if (pointers.current.size < 2) {
+        pinch.current = null;
+        const rest = [...pointers.current.values()][0];
+        if (rest) pan.current = { x: rest.x, y: rest.y, zx: zoom.x, zy: zoom.y };
+      }
+      return;
+    }
+    if (pan.current) {
+      const moved = Math.hypot(e.clientX - pan.current.x, e.clientY - pan.current.y) > 6;
+      pan.current = null;
+      if (!moved) handleTap(e, rect);
+      return;
+    }
     const d = drag.current;
     if (!d) return;
     drag.current = null;
     setDragAngle(null);
+    if (!d.moved && handleTap(e, rect)) return;
+    if (d.k < 0) {
+      if (!d.moved && d.forward && turned >= maxTurned) setShowGate(true);
+      return;
+    }
     const dx = e.clientX - d.startX;
     const progress = Math.abs(dx) / d.width;
     const flick = Date.now() - d.startT < 300 && Math.abs(dx) > 40;
     const rightWay = d.forward ? dx <= 0 : dx >= 0;
     const complete = !d.moved || (rightWay && (progress > COMPLETE_AT || flick));
     if (!complete) {
-      // settle back
       setMoving(d.k);
       setTimeout(() => setMoving(null), TURN_MS + 50);
       return;
     }
     if (d.forward) turnTo(turned + 1, turned);
     else turnTo(turned - 1, turned - 1);
+  };
+
+  // Double-tap toggles zoom; returns true when it consumed the tap.
+  const handleTap = (e: { clientX: number; clientY: number }, rect: DOMRect): boolean => {
+    const now = Date.now();
+    const prev = lastTap.current;
+    lastTap.current = { t: now, x: e.clientX, y: e.clientY };
+    if (prev && now - prev.t < 320 && Math.hypot(e.clientX - prev.x, e.clientY - prev.y) < 30) {
+      lastTap.current = null;
+      const p = rel(e, rect);
+      if (zoomed) setZoom({ s: 1, x: 0, y: 0 });
+      else zoomAbout(2.5, p.x, p.y, rect);
+      return true;
+    }
+    return false;
+  };
+
+  // Trackpad pinch (ctrl+wheel) zooms; a plain wheel pans while zoomed.
+  const onWheel = (e: React.WheelEvent<HTMLDivElement>) => {
+    const rect = boxRect();
+    if (e.ctrlKey) {
+      e.preventDefault();
+      const p = rel(e, rect);
+      zoomAbout(zoom.s * Math.exp(-e.deltaY / 200), p.x, p.y, rect);
+    } else if (zoomed) {
+      e.preventDefault();
+      setZoom((z) => clampZoom({ s: z.s, x: z.x - e.deltaX, y: z.y - e.deltaY }, rect.width, rect.height));
+    }
   };
 
   if (total === 0) {
@@ -188,12 +309,6 @@ export function BookReader({ book, pages, startPage, isSample, memberFullBook, p
     );
   }
 
-  // Book box from the stage: pages share the first page's aspect ratio.
-  const p0 = pages[0];
-  const ratio = p0.width && p0.height ? p0.width / p0.height : 1;
-  const pageH = Math.min(stage.h, (twoUp ? stage.w / 2 : stage.w) / ratio);
-  const pageW = pageH * ratio;
-  const bookW = twoUp ? pageW * 2 : pageW;
   const visible = (k: number) => k >= turned - 2 && k <= turned + 2;
   const label = twoUp
     ? leftPage && rightPage
@@ -220,6 +335,11 @@ export function BookReader({ book, pages, startPage, isSample, memberFullBook, p
           </div>
         </div>
         <div className='flex items-center gap-2 md:gap-3'>
+          {zoomed && (
+            <button onClick={() => setZoom({ s: 1, x: 0, y: 0 })} className='rounded-full bg-sun px-3.5 py-2 text-[13px] font-bold text-royal md:text-sm'>
+              {Math.round(zoom.s * 10) / 10}× · reset
+            </button>
+          )}
           <div className='rounded-full bg-white/15 px-3.5 py-2 text-[13px] font-bold tabular-nums md:text-sm'>
             {label} of {total}
           </div>
@@ -231,15 +351,16 @@ export function BookReader({ book, pages, startPage, isSample, memberFullBook, p
 
       <div className='relative z-10 flex min-h-0 flex-1 items-center justify-center gap-2 px-2 py-2 md:gap-7 md:px-8 md:py-3'>
         <NavButton dir={-1} disabled={turned === 0} onClick={() => go(-1)} />
-        <div ref={stageRef} className='relative flex h-full min-w-0 flex-1 items-center justify-center'>
+        <div ref={stageRef} className='relative flex h-full min-w-0 flex-1 items-center justify-center overflow-visible'>
           {stage.w > 0 && (
             <div
-              className='relative touch-none [perspective:2600px] drop-shadow-[0_30px_50px_rgba(0,0,0,0.45)]'
-              style={{ width: bookW, height: pageH }}
+              className={`relative touch-none [perspective:2600px] drop-shadow-[0_30px_50px_rgba(0,0,0,0.45)] ${pinch.current || pan.current ? '' : 'transition-transform duration-200 ease-out motion-reduce:transition-none'}`}
+              style={{ width: bookW, height: pageH, transform: `translate(${zoom.x}px, ${zoom.y}px) scale(${zoom.s})`, transformOrigin: 'center' }}
               onPointerDown={onPointerDown}
               onPointerMove={onPointerMove}
               onPointerUp={onPointerUp}
               onPointerCancel={onPointerUp}
+              onWheel={onWheel}
             >
               {twoUp && <div className='pointer-events-none absolute left-1/2 top-0 z-[5] h-full w-10 -translate-x-1/2 bg-[linear-gradient(90deg,rgba(0,0,0,0)_0%,rgba(0,0,0,.14)_48%,rgba(0,0,0,.2)_50%,rgba(0,0,0,.14)_52%,rgba(0,0,0,0)_100%)]' />}
               {Array.from({ length: sheetCount }, (_, k) => k)
