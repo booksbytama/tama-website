@@ -24,6 +24,9 @@
 .DS_Store
 *.pem
 
+# browser network captures — can contain live session tokens/cookies
+*.har
+
 # debug
 npm-debug.log*
 yarn-debug.log*
@@ -32,10 +35,14 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
 
 # vercel
 .vercel
 
 # typescript
 *.tsbuildinfo
+
+# local-only planning docs (business/personal context, kept out of git)
+.doc/
 next-env.d.ts

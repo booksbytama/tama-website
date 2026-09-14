@@ -1,117 +1,49 @@
+import type { Metadata } from 'next';
 import Image from 'next/image';
-import { ShoppingCart, BookOpen } from 'lucide-react';
+import Link from 'next/link';
+import { listBooks } from '@/lib/db/books';
+import { BuyLinks } from '@/components/books/buy-links';
+import { coverUrl } from '@/lib/supabase/admin';
 
-import { Button } from '@/components/ui/button';
+export const metadata: Metadata = { title: 'Where to buy' };
 
-export default function Buy() {
+export default async function Buy() {
+  const books = await listBooks();
   return (
-    <>
-      <section className='py-5 md:py-10'>
-        <div className='wrapper flex flex-col gap-4 md:gap-8 items-center justify-center text-center max-w-4xl mx-auto px-4'>
-          <div id='buy-online' className='p-2 md:p-4 '>
-            <Image
-              src='/assets/images/StarfishGroup.png'
-              alt='Starfish Group'
-              width={300}
-              height={300}
-              className='rounded max-h-[70vh] object-contain object-center 2xl:max-h-[50vh]'
-            />
-          </div>
-          {/* Intro */}
-          <p className='font-body text-lg text-muted-foreground max-w-xl'>
-            Choose your preferred store to buy Starfish Super Squad books —
-            online or locally in Seddon.
+    <div className='wrapper flex flex-col gap-12 py-10 md:py-16'>
+      <header className='flex flex-col items-center gap-4 text-center'>
+        <Image src='/assets/images/StarfishGroup.png' alt='' width={260} height={160} />
+        <h1 className='text-[36px] font-bold md:text-[48px]'>Where to buy</h1>
+        <p className='max-w-xl text-base text-slate md:text-lg'>Every book is printed on demand and ships worldwide. Pick the store you already use, or visit us locally in Seddon.</p>
+      </header>
+
+      <section className='flex flex-col gap-4'>
+        {books.map((b) => {
+          const cover = coverUrl(b.cover_path);
+          return (
+            <div key={b.id} className='grid items-center gap-4 rounded-3xl border-2 border-sand-deep bg-white p-4 md:grid-cols-[96px_1fr_2fr] md:gap-6'>
+              <Link href={`/books/${b.slug}`} className='overflow-hidden rounded-2xl bg-foam'>
+                {cover && <Image src={cover} alt={b.title} width={192} height={192} className='size-24 object-cover' />}
+              </Link>
+              <Link href={`/books/${b.slug}`} className='font-heading text-xl font-semibold text-royal'>
+                {b.title}
+              </Link>
+              <BuyLinks links={b.buy_links} className='md:grid-cols-3' />
+            </div>
+          );
+        })}
+      </section>
+
+      <section id='buy-local' className='grid items-center gap-6 rounded-[2rem] bg-foam p-6 md:grid-cols-[300px_1fr] md:p-10'>
+        <Image src='/assets/images/shoplocal.png' alt='Shop local' width={300} height={300} className='mx-auto' />
+        <div className='flex flex-col gap-3'>
+          <h2 className='text-[28px] font-semibold md:text-[36px]'>Buy local in Seddon</h2>
+          <p className='text-base leading-relaxed text-slate md:text-lg'>
+            Visit <strong>Far Fetched Designs</strong> in Seddon to shop locally. Get a <strong>free Ocean Map</strong> when you buy any 2
+            Starfish Super Squad books in-store — while stocks last.
           </p>
-          <div className=''>
-            <h2 className='font-heading text-3xl md:text-4xl mb-4'>
-              Buy Online
-            </h2>
-
-            <div className='mt-10 flex flex-col sm:flex-row flex-wrap justify-center gap-4 font-body w-full  p-6 border-blue-300 border rounded-xl  max-w-xl'>
-              {/* Amazon AU */}
-              <Button
-                variant='secondary'
-                className='bg-[#FF9900] text-white hover:bg-[#e68a00]'
-                asChild
-              >
-                <a
-                  href='https://www.amazon.com.au/dp/1923337033'
-                  target='_blank'
-                  rel='noopener noreferrer'
-                  className='flex items-center gap-2'
-                >
-                  <ShoppingCart className='h-4 w-4' />
-                  Buy on Amazon (AU)
-                </a>
-              </Button>
-
-              {/* Amazon US */}
-              <Button
-                variant='secondary'
-                className='bg-[#FF9900] text-white hover:bg-[#e68a00]'
-                asChild
-              >
-                <a
-                  href='https://www.amazon.com/dp/1923337033/'
-                  target='_blank'
-                  rel='noopener noreferrer'
-                  className='flex items-center gap-2'
-                >
-                  <ShoppingCart className='h-4 w-4' />
-                  Buy on Amazon (US)
-                </a>
-              </Button>
-
-              {/* Google Play */}
-              <Button
-                variant='secondary'
-                className='bg-[#4285F4] text-white hover:bg-[#3367D6]'
-                asChild
-              >
-                <a
-                  href='https://play.google.com/store/books/details?id=b3hZEQAAQBAJ'
-                  target='_blank'
-                  rel='noopener noreferrer'
-                  className='flex items-center gap-2'
-                >
-                  <BookOpen className='h-4 w-4' />
-                  Buy Digital on Google Play
-                </a>
-              </Button>
-            </div>
-          </div>
-
-          {/* BUY LOCAL */}
-          <div
-            id='buy-local'
-            className='flex flex-col items-center justify-center text-center'
-          >
-            <h2 className='font-heading text-3xl md:text-4xl mb-2'>
-              Buy Local
-            </h2>
-            <div className='p-2 md:p-4 '>
-              <Image
-                src='/assets/images/shoplocal.png'
-                alt='Tama avatar'
-                width={300}
-                height={300}
-                className='rounded max-h-[70vh] object-contain object-center 2xl:max-h-[50vh]'
-              />
-            </div>
-            <div className=' font-body w-full mt-10 p-6 border-blue-300 border rounded-xl  max-w-xl'>
-              <p className='text-base md:text-lg leading-relaxed'>
-                Visit <strong>Far Fetched Designs</strong> in Seddon to shop
-                locally.
-              </p>
-
-              <p className='text-base md:text-lg leading-relaxed   '>
-                Get a <strong>FREE Ocean Map</strong> when you buy any 2
-                Starfish Super Squad books — while stocks last.
-              </p>
-            </div>
-          </div>
         </div>
-      </section>{' '}
-    </>
+      </section>
+    </div>
   );
 }
