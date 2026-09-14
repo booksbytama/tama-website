@@ -2,7 +2,9 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { BookForm } from '@/components/admin/book-form';
 import { CoverUploader } from '@/components/admin/cover-uploader';
+import { NarrationPanel } from '@/components/admin/narration-panel';
 import { PdfUploader } from '@/components/admin/pdf-uploader';
+import { NARRATION_VOICES } from '@/lib/tts';
 import { getBookById, listBookPages, listSeries } from '@/lib/db/books';
 import { coverUrl, supabaseAdmin } from '@/lib/supabase/admin';
 import { deleteBookAction } from '../../actions';
@@ -41,6 +43,16 @@ export default async function EditBookPage({ params }: { params: Promise<{ id: s
       <div className='grid items-start gap-6 lg:grid-cols-[1fr_360px]'>
         <div className='flex flex-col gap-6'>
           <PdfUploader bookId={book.id} existing={thumbs} previewPages={book.preview_pages} />
+          <NarrationPanel
+            bookId={book.id}
+            voices={[...NARRATION_VOICES]}
+            currentVoice={book.narration_voice}
+            enabled={book.read_aloud_enabled}
+            pageCount={pages.length}
+            pagesWithWords={pages.filter((p) => p.words && p.words.length > 0).length}
+            pagesWithAudio={pages.filter((p) => p.audio_path).length}
+            pageNumbersWithWords={pages.filter((p) => p.words && p.words.length > 0).map((p) => p.page_number)}
+          />
           <BookForm book={book} series={series} />
         </div>
         <div className='flex flex-col gap-6'>

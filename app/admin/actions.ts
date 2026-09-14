@@ -6,6 +6,8 @@ import { z } from 'zod';
 import { requireAdmin } from '@/lib/auth';
 import { checkLimit } from '@/lib/ratelimit';
 import { supabaseAdmin } from '@/lib/supabase/admin';
+import { NARRATION_VOICES, synthesizeWords, type NarrationVoice } from '@/lib/tts';
+import type { WordBox } from '@/lib/db/types';
 
 const slug = z
   .string()
@@ -128,20 +130,72 @@ export async function beginPageUploadAction(bookId: string, pageCount: number): 
 
 export async function finishPageUploadAction(
   bookId: string,
-  pages: { page_number: number; storage_path: string; width: number; height: number }[],
+  pages: { page_number: number; storage_path: string; width: number; height: number; text?: string | null; words?: WordBox[] | null }[],
 ): Promise<{ ok: true }> {
   await guard();
   const db = supabaseAdmin();
-  const { data: old } = await db.from('book_pages').select('storage_path').eq('book_id', bookId);
+  const { data: old } = await db.from('book_pages').select('storage_path, audio_path').eq('book_id', bookId);
   const { error: delErr } = await db.from('book_pages').delete().eq('book_id', bookId);
   if (delErr) throw delErr;
-  const { error } = await db.from('book_pages').insert(pages.map((p) => ({ ...p, book_id: bookId })));
+  const { error } = await db
+    .from('book_pages')
+    .insert(pages.map((p) => ({ ...p, text: p.text ?? null, words: p.words ?? null, book_id: bookId })));
   if (error) throw error;
   const { data: book } = await db.from('books').select('preview_pages').eq('id', bookId).single();
   const preview = Math.min(book?.preview_pages || 8, pages.length);
-  await db.from('books').update({ page_count: pages.length, preview_pages: preview }).eq('id', bookId);
+  // New pages mean any narration is stale: switch it off until it's regenerated.
+  await db.from('books').update({ page_count: pages.length, preview_pages: preview, read_aloud_enabled: false }).eq('id', bookId);
   const stale = (old ?? []).map((o) => o.storage_path).filter((p) => !pages.some((n) => n.storage_path === p));
   if (stale.length) await db.storage.from('pages').remove(stale);
+  const staleAudio = (old ?? []).map((o) => o.audio_path).filter((p): p is string => Boolean(p));
+  if (staleAudio.length) await db.storage.from('audio').remove(staleAudio);
+  revalidatePath('/', 'layout');
+  return { ok: true };
+}
+
+// --- Read-aloud narration (Google Cloud Text-to-Speech) ---
+
+const voiceSchema = z.enum(NARRATION_VOICES.map((v) => v.id) as [NarrationVoice, ...NarrationVoice[]]);
+
+export async function previewVoiceAction(voice: string): Promise<{ url: string }> {
+  await guard();
+  const v = voiceSchema.parse(voice);
+  const db = supabaseAdmin();
+  const path = `previews/${v}.mp3`;
+  const { data: existing } = await db.storage.from('audio').createSignedUrl(path, 600);
+  if (existing?.signedUrl) return { url: existing.signedUrl };
+  const line = 'Deep in Coral Cove, two best friends lived under the sea. Shelly, a shy pink starfish, and Spike, a cheerful yellow starfish who loved adventures!';
+  const { mp3 } = await synthesizeWords(line.split(' '), v);
+  const { error } = await db.storage.from('audio').upload(path, mp3, { contentType: 'audio/mpeg', upsert: true });
+  if (error) throw error;
+  const { data } = await db.storage.from('audio').createSignedUrl(path, 600);
+  return { url: data!.signedUrl };
+}
+
+// One page at a time so the admin can show progress and a long book never hits a function timeout.
+export async function narratePageAction(bookId: string, pageNumber: number, voice: string): Promise<{ ok: true; skipped?: true }> {
+  await guard();
+  const v = voiceSchema.parse(voice);
+  const db = supabaseAdmin();
+  const { data: page, error } = await db.from('book_pages').select('id, words, audio_path').eq('book_id', bookId).eq('page_number', pageNumber).single();
+  if (error) throw error;
+  const words = (page.words as WordBox[] | null) ?? [];
+  if (words.length === 0) return { ok: true, skipped: true };
+  const { mp3, timings } = await synthesizeWords(words.map((w) => w.t), v);
+  const path = `${bookId}/${v}/${String(pageNumber).padStart(3, '0')}-${Date.now().toString(36)}.mp3`;
+  const { error: upErr } = await db.storage.from('audio').upload(path, mp3, { contentType: 'audio/mpeg', upsert: true });
+  if (upErr) throw upErr;
+  const { error: rowErr } = await db.from('book_pages').update({ audio_path: path, timings }).eq('id', page.id);
+  if (rowErr) throw rowErr;
+  if (page.audio_path && page.audio_path !== path) await db.storage.from('audio').remove([page.audio_path]);
+  return { ok: true };
+}
+
+export async function setNarrationAction(bookId: string, input: { voice: string | null; enabled: boolean }): Promise<{ ok: true }> {
+  await guard();
+  const voice = input.voice ? voiceSchema.parse(input.voice) : null;
+  const { error } = await supabaseAdmin().from('books').update({ narration_voice: voice, read_aloud_enabled: input.enabled }).eq('id', bookId);
+  if (error) throw error;
   revalidatePath('/', 'layout');
   return { ok: true };
 }

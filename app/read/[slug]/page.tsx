@@ -26,7 +26,7 @@ export default async function ReadPage({ params, searchParams }: Props) {
 
   const [allowed, pages, profile] = await Promise.all([
     checkLimit('reader', user?.id ?? ip),
-    signedPageUrls(book.id, limit),
+    signedPageUrls(book.id, limit, book.read_aloud_enabled),
     user && activeId ? getProfileForUser(user.id, activeId) : Promise.resolve(null),
   ]);
 
@@ -43,6 +43,7 @@ export default async function ReadPage({ params, searchParams }: Props) {
       startPage={startPage}
       isSample={limit < book.page_count}
       memberFullBook={book.member_reading_enabled}
+      readAloud={book.read_aloud_enabled && pages.some((p) => p.audioUrl)}
       profile={profile ? { id: profile.id, name: profile.name } : null}
       signedIn={Boolean(user)}
     />

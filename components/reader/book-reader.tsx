@@ -3,11 +3,11 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ChevronLeft, ChevronRight, Lock, Maximize2, Minimize2, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Lock, Maximize2, Minimize2, Play, Square, X } from 'lucide-react';
 import { saveProgressAction } from '@/app/(marketing)/account/actions';
-import type { BuyLink } from '@/lib/db/types';
+import type { BuyLink, WordBox } from '@/lib/db/types';
 
-type Page = { page_number: number; url: string; width: number | null; height: number | null };
+type Page = { page_number: number; url: string; width: number | null; height: number | null; words?: WordBox[] | null; audioUrl?: string | null; timings?: number[] | null };
 
 type Props = {
   book: { id: string; slug: string; title: string; seriesName: string | null; buyLinks: BuyLink[]; pageCount: number };
@@ -15,6 +15,7 @@ type Props = {
   startPage: number;
   isSample: boolean;
   memberFullBook: boolean;
+  readAloud: boolean;
   profile: { id: string; name: string } | null;
   signedIn: boolean;
 };
@@ -22,7 +23,7 @@ type Props = {
 const TURN_MS = 900;
 const COMPLETE_AT = 0.35; // fraction of a page width dragged before a release completes the turn
 
-export function BookReader({ book, pages, startPage, isSample, memberFullBook, profile, signedIn }: Props) {
+export function BookReader({ book, pages, startPage, isSample, memberFullBook, readAloud, profile, signedIn }: Props) {
   const total = pages.length;
   const [twoUp, setTwoUp] = useState(false);
   const [current, setCurrent] = useState(startPage);
@@ -33,6 +34,12 @@ export function BookReader({ book, pages, startPage, isSample, memberFullBook, p
   const [dragAngle, setDragAngle] = useState<{ k: number; deg: number } | null>(null);
   const [zoom, setZoom] = useState({ s: 1, x: 0, y: 0 });
   const zoomed = zoom.s > 1.02;
+  const [reading, setReading] = useState(false);
+  const [slow, setSlow] = useState(false);
+  const [autoTurn, setAutoTurn] = useState(true);
+  const [lit, setLit] = useState<{ page: number; idx: number } | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const readSession = useRef(0);
   const rootRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
   const [stage, setStage] = useState({ w: 0, h: 0 });
@@ -123,6 +130,85 @@ export function BookReader({ book, pages, startPage, isSample, memberFullBook, p
     if (document.fullscreenElement) void document.exitFullscreen();
     else void rootRef.current?.requestFullscreen?.();
   };
+
+  // ---- Read aloud: one <audio> element (unlocked by the first tap, so iOS allows later pages), words lit from timings.
+  const pagesOnView = useCallback(() => {
+    const nums = twoUp ? [leftPage, rightPage].filter((n): n is number => n !== null) : [current];
+    return nums.map((n) => pages.find((p) => p.page_number === n)).filter((p): p is Page => Boolean(p?.audioUrl && p.timings && p.words));
+  }, [twoUp, leftPage, rightPage, current, pages]);
+
+  const stopReading = useCallback(() => {
+    readSession.current++;
+    audioRef.current?.pause();
+    setReading(false);
+    setLit(null);
+  }, []);
+
+  const playPages = useCallback(
+    (queue: Page[], session: number) => {
+      const audio = audioRef.current;
+      if (!audio || session !== readSession.current) return;
+      const pg = queue[0];
+      if (!pg) {
+        // Finished what's on view.
+        if (autoTurn && turned < maxTurned) {
+          turnTo(turned + 1, turned);
+        } else {
+          setReading(false);
+          setLit(null);
+          if (turned >= maxTurned) setShowGate(true);
+        }
+        return;
+      }
+      const timings = pg.timings!;
+      audio.src = pg.audioUrl!;
+      audio.playbackRate = slow ? 0.8 : 1;
+      audio.ontimeupdate = () => {
+        if (session !== readSession.current) return;
+        const t = audio.currentTime + 0.05;
+        let i = 0;
+        while (i + 1 < timings.length && timings[i + 1] <= t) i++;
+        setLit({ page: pg.page_number, idx: i });
+      };
+      audio.onended = () => session === readSession.current && playPages(queue.slice(1), session);
+      audio.onerror = () => session === readSession.current && stopReading();
+      void audio.play().catch(() => stopReading());
+      const next = queue[1] ?? null;
+      if (next?.audioUrl) new Audio(next.audioUrl).preload = 'auto';
+    },
+    [autoTurn, turned, maxTurned, turnTo, slow, stopReading],
+  );
+
+  const startReading = useCallback(() => {
+    if (!audioRef.current) audioRef.current = new Audio();
+    const session = ++readSession.current;
+    setReading(true);
+    setShowGate(false);
+    playPages(pagesOnView(), session);
+  }, [pagesOnView, playPages]);
+
+  // Whatever turned the page (auto-turn, tap, arrow), keep reading on the new spread once the curl settles.
+  const readingRef = useRef(false);
+  readingRef.current = reading;
+  useEffect(() => {
+    if (!readingRef.current) return;
+    readSession.current++;
+    audioRef.current?.pause();
+    setLit(null);
+    const t = setTimeout(() => {
+      if (!readingRef.current) return;
+      const session = ++readSession.current;
+      playPages(pagesOnView(), session);
+    }, TURN_MS + 100);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [current, twoUp]);
+
+  useEffect(() => {
+    if (audioRef.current) audioRef.current.playbackRate = slow ? 0.8 : 1;
+  }, [slow]);
+
+  useEffect(() => () => audioRef.current?.pause(), []);
 
   // Fetch AND decode the pages around the current one so a turn paints instantly.
   const decoded = useRef(new Set<number>());
@@ -381,8 +467,8 @@ export function BookReader({ book, pages, startPage, isSample, memberFullBook, p
                         transform: dragging ? `rotateY(${dragAngle.deg}deg)` : flipped ? 'rotateY(-180deg)' : 'rotateY(0deg)',
                       }}
                     >
-                      <Face page={front} title={book.title} side='front' shaded={isMoving} rounded={twoUp ? 'rounded-r-[14px] rounded-l-[3px]' : 'rounded-[14px]'} />
-                      <Face page={back} title={book.title} side='back' shaded={isMoving} rounded={twoUp ? 'rounded-l-[14px] rounded-r-[3px]' : 'rounded-[14px]'} />
+                      <Face page={front} title={book.title} side='front' shaded={isMoving} rounded={twoUp ? 'rounded-r-[14px] rounded-l-[3px]' : 'rounded-[14px]'} lit={reading && lit?.page === front?.page_number ? lit.idx : null} />
+                      <Face page={back} title={book.title} side='back' shaded={isMoving} rounded={twoUp ? 'rounded-l-[14px] rounded-r-[3px]' : 'rounded-[14px]'} lit={reading && back && lit?.page === back.page_number ? lit.idx : null} />
                     </div>
                   );
                 })}
@@ -396,7 +482,24 @@ export function BookReader({ book, pages, startPage, isSample, memberFullBook, p
         <EndGate book={book} isSample={isSample} memberFullBook={memberFullBook} signedIn={signedIn} profile={profile} saved={saved} onClose={() => setShowGate(false)} />
       )}
 
-      <footer className='relative z-10 flex shrink-0 items-center justify-center gap-2 px-4 pb-3 pt-1 md:pb-6 md:pt-2 [@media(max-height:520px)]:pb-1.5 [@media(max-height:520px)]:pt-0'>
+      <footer className='relative z-10 flex shrink-0 flex-wrap items-center justify-center gap-x-3 gap-y-2 px-4 pb-3 pt-1 md:pb-6 md:pt-2 [@media(max-height:520px)]:pb-1.5 [@media(max-height:520px)]:pt-0'>
+        {readAloud && (
+          <div className='flex items-center gap-2'>
+            <button
+              onClick={() => (reading ? stopReading() : startReading())}
+              className={`btn btn-sm font-heading text-base shadow-[0_4px_0_var(--color-sun-deep)] active:translate-y-[2px] active:shadow-[0_2px_0_var(--color-sun-deep)] md:btn-md ${reading ? 'bg-white text-royal' : 'bg-sun text-royal'}`}
+            >
+              {reading ? <Square className='size-4' fill='currentColor' strokeWidth={0} /> : <Play className='size-4' fill='currentColor' strokeWidth={0} />}
+              {reading ? 'Stop' : 'Read to me'}
+            </button>
+            <button onClick={() => setSlow((v) => !v)} aria-pressed={slow} className={`rounded-full px-3 py-2 text-[13px] font-bold ${slow ? 'bg-sun/25 text-sun' : 'bg-white/15 text-white'}`}>
+              Slow
+            </button>
+            <button onClick={() => setAutoTurn((v) => !v)} aria-pressed={autoTurn} className={`rounded-full px-3 py-2 text-[13px] font-bold ${autoTurn ? 'bg-sun/25 text-sun' : 'bg-white/15 text-white'}`}>
+              Auto-turn
+            </button>
+          </div>
+        )}
         <div className='flex max-w-full gap-1.5 overflow-x-auto px-2 py-1'>
           {pages.map((p) => (
             <button
@@ -421,7 +524,7 @@ export function BookReader({ book, pages, startPage, isSample, memberFullBook, p
   );
 }
 
-function Face({ page, title, side, shaded, rounded }: { page?: Page; title: string; side: 'front' | 'back'; shaded: boolean; rounded: string }) {
+function Face({ page, title, side, shaded, rounded, lit }: { page?: Page; title: string; side: 'front' | 'back'; shaded: boolean; rounded: string; lit: number | null }) {
   return (
     <div
       className={`absolute inset-0 overflow-hidden bg-[#f7fbff] [backface-visibility:hidden] ${rounded}`}
@@ -431,6 +534,15 @@ function Face({ page, title, side, shaded, rounded }: { page?: Page; title: stri
         // eslint-disable-next-line @next/next/no-img-element
         <img src={page.url} alt={`${title} page ${page.page_number}`} draggable={false} className='size-full object-contain' />
       )}
+      {lit !== null &&
+        page?.words?.map((w, i) => (
+          <span
+            key={i}
+            aria-hidden
+            className={`pointer-events-none absolute rounded-md bg-sun mix-blend-multiply transition-[opacity,transform] duration-150 ${i === lit ? 'scale-110 opacity-85' : i < lit ? 'opacity-20' : 'opacity-0'}`}
+            style={{ left: `${w.l}%`, top: `${w.top}%`, width: `${w.w}%`, height: `${w.h}%` }}
+          />
+        ))}
       <div
         className={`pointer-events-none absolute inset-0 transition-opacity duration-300 ${shaded ? 'opacity-100' : 'opacity-0'} ${
           side === 'front'

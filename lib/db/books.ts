@@ -1,7 +1,7 @@
 import 'server-only';
 import { cache } from 'react';
 import { supabaseAdmin } from '@/lib/supabase/admin';
-import type { Book, BookPage, BookWithSeries, Series } from './types';
+import type { Book, BookPage, BookWithSeries, Series, WordBox } from './types';
 
 const BOOK_SELECT = '*, series(*)';
 
@@ -51,20 +51,34 @@ export const listBookPages = cache(async (bookId: string) => {
   return (data ?? []) as BookPage[];
 });
 
+export type ReaderPage = {
+  page_number: number;
+  url: string;
+  width: number | null;
+  height: number | null;
+  words: WordBox[] | null;
+  audioUrl: string | null;
+  timings: number[] | null;
+};
+
 // Signed URLs for the pages a reader may see. `limit` is the highest page number allowed.
-export async function signedPageUrls(bookId: string, limit: number, expiresInSeconds = 60 * 60) {
+export async function signedPageUrls(bookId: string, limit: number, withAudio: boolean, expiresInSeconds = 60 * 60): Promise<ReaderPage[]> {
   const pages = (await listBookPages(bookId)).filter((p) => p.page_number <= limit);
-  if (pages.length === 0) return [] as { page_number: number; url: string; width: number | null; height: number | null }[];
-  const { data, error } = await supabaseAdmin()
-    .storage.from('pages')
-    .createSignedUrls(
-      pages.map((p) => p.storage_path),
-      expiresInSeconds,
-    );
-  if (error) throw error;
+  if (pages.length === 0) return [];
+  const storage = supabaseAdmin().storage;
+  const [imgs, auds] = await Promise.all([
+    storage.from('pages').createSignedUrls(pages.map((p) => p.storage_path), expiresInSeconds),
+    withAudio && pages.some((p) => p.audio_path)
+      ? storage.from('audio').createSignedUrls(pages.filter((p) => p.audio_path).map((p) => p.audio_path!), expiresInSeconds)
+      : Promise.resolve({ data: [] as { signedUrl: string | null }[], error: null }),
+  ]);
+  if (imgs.error) throw imgs.error;
+  if (auds.error) throw auds.error;
+  let a = 0;
   return pages.flatMap((p, i) => {
-    const url = data[i]?.signedUrl;
-    return url ? [{ page_number: p.page_number, url, width: p.width, height: p.height }] : [];
+    const url = imgs.data[i]?.signedUrl;
+    const audioUrl = withAudio && p.audio_path ? (auds.data[a++]?.signedUrl ?? null) : null;
+    return url ? [{ page_number: p.page_number, url, width: p.width, height: p.height, words: p.words, audioUrl, timings: audioUrl ? p.timings : null }] : [];
   });
 }
 

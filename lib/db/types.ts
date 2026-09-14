@@ -24,6 +24,8 @@ export type Book = {
   is_listed: boolean;
   sample_enabled: boolean;
   member_reading_enabled: boolean;
+  narration_voice: string | null;
+  read_aloud_enabled: boolean;
   buy_links: BuyLink[];
   sort_order: number;
   created_at: string;
@@ -32,6 +34,8 @@ export type Book = {
 
 export type BookWithSeries = Book & { series: Series | null };
 
+export type WordBox = { t: string; l: number; w: number; top: number; h: number };
+
 export type BookPage = {
   id: string;
   book_id: string;
@@ -39,6 +43,10 @@ export type BookPage = {
   storage_path: string;
   width: number | null;
   height: number | null;
+  text: string | null;
+  words: WordBox[] | null;
+  audio_path: string | null;
+  timings: number[] | null;
 };
 
 export type Profile = {

@@ -4,8 +4,10 @@ import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { FileText, Upload } from 'lucide-react';
 import { beginPageUploadAction, finishPageUploadAction } from '@/app/admin/actions';
+import { extractWords, type WordBox } from '@/lib/pdf-words';
 
 type Thumb = { page: number; url: string };
+type TextItem = { str: string; transform: number[]; width: number; height: number };
 type Status = { phase: 'idle' } | { phase: 'working'; done: number; total: number; label: string } | { phase: 'error'; message: string };
 
 const TARGET_WIDTH = 1600;
@@ -14,6 +16,7 @@ const WEBP_QUALITY = 0.82;
 export function PdfUploader({ bookId, existing, previewPages }: { bookId: string; existing: Thumb[]; previewPages: number }) {
   const [status, setStatus] = useState<Status>({ phase: 'idle' });
   const [thumbs, setThumbs] = useState<Thumb[]>(existing);
+  const [textInfo, setTextInfo] = useState<{ total: number; withText: number } | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
@@ -28,13 +31,17 @@ export function PdfUploader({ bookId, existing, previewPages }: { bookId: string
 
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d', { alpha: false })!;
-      const results: { page_number: number; storage_path: string; width: number; height: number }[] = [];
+      const results: { page_number: number; storage_path: string; width: number; height: number; text: string | null; words: WordBox[] | null }[] = [];
+      let pagesWithText = 0;
       const local: Thumb[] = [];
 
       for (let n = 1; n <= total; n++) {
         setStatus({ phase: 'working', done: n - 1, total, label: `Converting page ${n} of ${total}` });
         const page = await doc.getPage(n);
         const base = page.getViewport({ scale: 1 });
+        const tc = await page.getTextContent();
+        const { text, words } = extractWords(tc.items.filter((it) => 'str' in it) as unknown as TextItem[], base.width, base.height);
+        if (words.length) pagesWithText++;
         const scale = Math.min(TARGET_WIDTH / base.width, 4);
         const vp = page.getViewport({ scale });
         canvas.width = Math.round(vp.width);
@@ -48,7 +55,7 @@ export function PdfUploader({ bookId, existing, previewPages }: { bookId: string
         setStatus({ phase: 'working', done: n - 1, total, label: `Uploading page ${n} of ${total}` });
         const resp = await fetch(u.url, { method: 'PUT', headers: { 'Content-Type': 'image/webp', 'x-upsert': 'true' }, body: blob });
         if (!resp.ok) throw new Error(`Upload of page ${n} failed (${resp.status})`);
-        results.push({ page_number: n, storage_path: u.path, width: canvas.width, height: canvas.height });
+        results.push({ page_number: n, storage_path: u.path, width: canvas.width, height: canvas.height, text: text || null, words: words.length ? words : null });
         if (n <= 16) local.push({ page: n, url: URL.createObjectURL(blob) });
         page.cleanup();
       }
@@ -56,6 +63,7 @@ export function PdfUploader({ bookId, existing, previewPages }: { bookId: string
       setStatus({ phase: 'working', done: total, total, label: 'Saving…' });
       await finishPageUploadAction(bookId, results);
       setThumbs(local);
+      setTextInfo({ total, withText: pagesWithText });
       setStatus({ phase: 'idle' });
       router.refresh();
     } catch (e) {
@@ -120,6 +128,13 @@ export function PdfUploader({ bookId, existing, previewPages }: { bookId: string
           ))}
           {existing.length > 16 && thumbs.length <= 16 && <div className='flex aspect-square items-center justify-center rounded-[10px] bg-[#eef2f7] text-xs font-bold text-mist'>+ more</div>}
         </div>
+      )}
+      {textInfo && (
+        <p className={`rounded-xl px-4 py-3 text-sm font-bold ${textInfo.withText > 0 ? 'bg-[#e6f7ee] text-[#1e7b4b]' : 'bg-[#fff8e1] text-[#8a6100]'}`}>
+          {textInfo.withText > 0
+            ? `Words found on ${textInfo.withText} of ${textInfo.total} pages — ready for read-aloud (generate the voice below).`
+            : 'No text found in this PDF — read-aloud needs a PDF with real text (not outlined lettering).'}
+        </p>
       )}
       <p className='text-[12px] font-semibold text-mist'>Yellow ring = free sample pages. Change the length under Details → “Free sample length”.</p>
     </section>
