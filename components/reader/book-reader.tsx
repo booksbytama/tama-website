@@ -354,7 +354,7 @@ export function BookReader({ book, pages, startPage, isSample, memberFullBook, p
         <div ref={stageRef} className='relative flex h-full min-w-0 flex-1 items-center justify-center overflow-visible'>
           {stage.w > 0 && (
             <div
-              className={`relative touch-none [perspective:2600px] drop-shadow-[0_30px_50px_rgba(0,0,0,0.45)] ${pinch.current || pan.current ? '' : 'transition-transform duration-200 ease-out motion-reduce:transition-none'}`}
+              className={`relative touch-none [perspective:2600px] drop-shadow-[0_30px_50px_rgba(0,0,0,0.45)] ${twoUp ? '' : 'overflow-hidden rounded-[14px]'} ${pinch.current || pan.current ? '' : 'transition-transform duration-200 ease-out motion-reduce:transition-none'}`}
               style={{ width: bookW, height: pageH, transform: `translate(${zoom.x}px, ${zoom.y}px) scale(${zoom.s})`, transformOrigin: 'center' }}
               onPointerDown={onPointerDown}
               onPointerMove={onPointerMove}
