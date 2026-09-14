@@ -52,6 +52,7 @@ export default async function EditBookPage({ params }: { params: Promise<{ id: s
             pagesWithWords={pages.filter((p) => p.words && p.words.length > 0).length}
             pagesWithAudio={pages.filter((p) => p.audio_path).length}
             pageNumbersWithWords={pages.filter((p) => p.words && p.words.length > 0).map((p) => p.page_number)}
+            pageNumbersMissingAudio={pages.filter((p) => p.words && p.words.length > 0 && !p.audio_path).map((p) => p.page_number)}
           />
           <BookForm book={book} series={series} />
         </div>

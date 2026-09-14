@@ -14,9 +14,10 @@ type Props = {
   pagesWithWords: number;
   pagesWithAudio: number;
   pageNumbersWithWords: number[];
+  pageNumbersMissingAudio: number[];
 };
 
-export function NarrationPanel({ bookId, voices, currentVoice, enabled, pageCount, pagesWithWords, pagesWithAudio, pageNumbersWithWords }: Props) {
+export function NarrationPanel({ bookId, voices, currentVoice, enabled, pageCount, pagesWithWords, pagesWithAudio, pageNumbersWithWords, pageNumbersMissingAudio }: Props) {
   const router = useRouter();
   const [voice, setVoice] = useState(currentVoice ?? voices[0]?.id ?? '');
   const [busy, setBusy] = useState<string | null>(null);
@@ -40,23 +41,37 @@ export function NarrationPanel({ bookId, voices, currentVoice, enabled, pageCoun
     }
   }
 
-  async function generate() {
+  const [failed, setFailed] = useState<number[]>([]);
+
+  // Google rate-limits bursts, so each page gets a couple of retries and a failure never stops the run.
+  async function generate(pageNumbers: number[]) {
     setError(null);
+    setFailed([]);
     setBusy('generate');
-    setProgress({ done: 0, total: pageNumbersWithWords.length });
-    try {
-      for (const [i, n] of pageNumbersWithWords.entries()) {
-        await narratePageAction(bookId, n, voice);
-        setProgress({ done: i + 1, total: pageNumbersWithWords.length });
+    setProgress({ done: 0, total: pageNumbers.length });
+    const failures: number[] = [];
+    for (const [i, n] of pageNumbers.entries()) {
+      let ok = false;
+      for (let attempt = 0; attempt < 3 && !ok; attempt++) {
+        try {
+          await narratePageAction(bookId, n, voice);
+          ok = true;
+        } catch {
+          await new Promise((r) => setTimeout(r, 1500 * (attempt + 1)));
+        }
       }
-      await setNarrationAction(bookId, { voice, enabled: true });
-      router.refresh();
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Generation failed');
-    } finally {
-      setBusy(null);
-      setProgress(null);
+      if (!ok) failures.push(n);
+      setProgress({ done: i + 1, total: pageNumbers.length });
     }
+    try {
+      if (failures.length < pageNumbers.length) await setNarrationAction(bookId, { voice, enabled: true });
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Could not switch narration on');
+    }
+    setFailed(failures);
+    setBusy(null);
+    setProgress(null);
+    router.refresh();
   }
 
   async function toggle(on: boolean) {
@@ -118,9 +133,25 @@ export function NarrationPanel({ bookId, voices, currentVoice, enabled, pageCoun
       )}
       {error && <p className='rounded-xl bg-[#fde8e7] px-4 py-3 text-sm font-bold text-coral'>{error}</p>}
 
+      {failed.length > 0 && (
+        <p className='rounded-xl bg-[#fff8e1] px-4 py-3 text-sm font-bold text-[#8a6100]'>
+          Couldn't generate page{failed.length > 1 ? 's' : ''} {failed.join(', ')} — use “Generate missing pages” to try again.
+        </p>
+      )}
+
       <div className='flex flex-wrap items-center gap-3'>
-        <button type='button' onClick={() => void generate()} disabled={busy !== null || noWords} className='rounded-xl bg-ocean px-5 py-2.5 text-[15px] font-bold text-white hover:bg-royal disabled:opacity-50'>
-          {pagesWithAudio > 0 ? 'Regenerate voice for all pages' : 'Generate voice for all pages'}
+        {pageNumbersMissingAudio.length > 0 && pagesWithAudio > 0 && (
+          <button type='button' onClick={() => void generate(pageNumbersMissingAudio)} disabled={busy !== null} className='rounded-xl bg-ocean px-5 py-2.5 text-[15px] font-bold text-white hover:bg-royal disabled:opacity-50'>
+            Generate missing pages ({pageNumbersMissingAudio.length})
+          </button>
+        )}
+        <button
+          type='button'
+          onClick={() => void generate(pageNumbersWithWords)}
+          disabled={busy !== null || noWords}
+          className={`rounded-xl px-5 py-2.5 text-[15px] font-bold disabled:opacity-50 ${pagesWithAudio > 0 ? 'border-2 border-line bg-white text-royal hover:border-ocean' : 'bg-ocean text-white hover:bg-royal'}`}
+        >
+          {pagesWithAudio > 0 ? 'Regenerate all pages' : 'Generate voice for all pages'}
         </button>
         <span className='text-[12px] font-semibold text-mist'>About {Math.ceil(pagesWithWords * 1.5)}s. Uses your Google free allowance (a book is ~0.3% of a month).</span>
       </div>
