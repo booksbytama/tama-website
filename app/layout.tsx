@@ -2,13 +2,14 @@ import type { Metadata } from 'next';
 import { Fredoka, Quicksand } from 'next/font/google';
 import { ClerkProvider } from '@clerk/nextjs';
 import { GoogleAnalytics } from '@next/third-parties/google';
+import { siteUrl } from '@/lib/site-url';
 import './globals.css';
 
 const fredoka = Fredoka({ variable: '--font-fredoka', subsets: ['latin'] });
 const quicksand = Quicksand({ variable: '--font-quicksand', subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'),
+  metadataBase: siteUrl(),
   title: { default: 'Books by Tama', template: '%s · Books by Tama' },
   description:
     "Ocean adventures for curious little readers. Picture books and colouring books about friendship, courage and the creatures of Coral Cove. Read a free sample, then buy wherever you like.",
