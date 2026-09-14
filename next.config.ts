@@ -7,7 +7,10 @@ const nextConfig: NextConfig = {
     remotePatterns: supabaseHost ? [{ protocol: 'https', hostname: supabaseHost, pathname: '/storage/v1/object/**' }] : [],
   },
   async redirects() {
-    return [{ source: '/books/:slug/read', destination: '/read/:slug', permanent: false }];
+    return [
+      { source: '/books/:slug/read', destination: '/read/:slug', permanent: false },
+      { source: '/activities', destination: '/colouring', permanent: true },
+    ];
   },
 };
 

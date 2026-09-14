@@ -5,6 +5,7 @@ Items deferred from the 2026-09 rebuild. Not scheduled.
 ## Content / marketing
 
 - **Starter pack contents** — decide what the free sign-up pack actually contains. Mockup placeholder: A3 Coral Cove poster (PDF), 6 colouring pages (one per book), treasure-map reading tracker. Needs real PDFs uploaded via admin.
+- **Old treasure-hunt activities page** removed 2026-09-15 (`/activities` redirects to `/colouring`). The set-a/set-b page images remain in `public/assets/images` if ever needed.
 - **Colouring books placement** — they currently sit under "Read"/Books alongside the picture books. Find a better home (own top-level section? "Print & colour"?).
 
 ## Navigation
