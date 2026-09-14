@@ -10,6 +10,7 @@ const nextConfig: NextConfig = {
     return [
       { source: '/books/:slug/read', destination: '/read/:slug', permanent: false },
       { source: '/activities', destination: '/colouring', permanent: true },
+      { source: '/dashboard', destination: '/account', permanent: false },
     ];
   },
 };
