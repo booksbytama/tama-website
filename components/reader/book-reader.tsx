@@ -135,14 +135,14 @@ export function BookReader({ book, pages, startPage, isSample, profile, signedIn
     <div ref={rootRef} className='relative flex h-dvh flex-col overflow-hidden bg-gradient-to-b from-royal-deep to-[#1479c4] text-white select-none'>
       <Bubbles />
 
-      <header className='relative z-10 flex items-center justify-between px-4 py-3 md:px-8 md:py-5'>
+      <header className='relative z-10 flex shrink-0 items-center justify-between px-4 py-2 md:px-8 md:py-5 [@media(max-height:520px)]:py-1.5'>
         <div className='flex items-center gap-3'>
           <Link href={`/books/${book.slug}`} aria-label='Close reader' className='flex size-11 items-center justify-center rounded-full bg-white/15 hover:bg-white/25'>
             <X className='size-[22px]' strokeWidth={2.4} />
           </Link>
           <div className='flex flex-col'>
             <div className='font-heading text-base font-semibold leading-tight md:text-xl'>{book.title}</div>
-            <div className='text-xs font-semibold text-[#9fc4e8] md:text-[13px]'>
+            <div className='text-xs font-semibold text-[#9fc4e8] md:text-[13px] [@media(max-height:520px)]:hidden'>
               {book.seriesName ? `${book.seriesName} · ` : ''}
               {isSample ? 'Free sample' : 'Full book'}
               {profile ? ` · ${profile.name}'s shelf` : ''}
@@ -160,7 +160,7 @@ export function BookReader({ book, pages, startPage, isSample, profile, signedIn
       </header>
 
       <div
-        className='relative z-10 flex flex-1 items-center justify-center gap-3 px-2 md:gap-7 md:px-8'
+        className='relative z-10 flex min-h-0 flex-1 items-center justify-center gap-2 px-2 py-2 md:gap-7 md:px-8 md:py-3'
         onTouchStart={(e) => (touchX.current = e.touches[0].clientX)}
         onTouchEnd={(e) => {
           if (touchX.current == null) return;
@@ -170,7 +170,7 @@ export function BookReader({ book, pages, startPage, isSample, profile, signedIn
         }}
       >
         <NavButton dir={-1} disabled={atStart} onClick={() => go(-1)} />
-        <div ref={stageRef} className='relative flex h-[calc(100dvh-150px)] w-full items-center justify-center md:h-[calc(100dvh-190px)]'>
+        <div ref={stageRef} className='relative flex h-full min-w-0 flex-1 items-center justify-center'>
           <div className={`flex ${spread.length === 2 ? 'gap-[3px]' : ''} overflow-hidden rounded-[14px] shadow-[0_30px_60px_rgba(0,0,0,0.45)]`}>
             {spread.map((n) => {
               const p = pages.find((x) => x.page_number === n)!;
@@ -182,12 +182,13 @@ export function BookReader({ book, pages, startPage, isSample, profile, signedIn
               );
             })}
           </div>
-          {showGate && <EndGate book={book} signedIn={signedIn} profile={profile} onClose={() => setShowGate(false)} />}
         </div>
         <NavButton dir={1} disabled={atEnd && !isSample} onClick={() => go(1)} />
       </div>
 
-      <footer className='relative z-10 flex items-center justify-center gap-2 px-4 pb-4 pt-2 md:pb-6'>
+      {showGate && <EndGate book={book} signedIn={signedIn} profile={profile} onClose={() => setShowGate(false)} />}
+
+      <footer className='relative z-10 flex shrink-0 items-center justify-center gap-2 px-4 pb-3 pt-1 md:pb-6 md:pt-2 [@media(max-height:520px)]:pb-1.5 [@media(max-height:520px)]:pt-0'>
         <div className='flex max-w-full gap-1.5 overflow-x-auto px-2 py-1'>
           {pages.map((p) => (
             <button
@@ -234,7 +235,7 @@ function NavButton({ dir, disabled, onClick }: { dir: 1 | -1; disabled: boolean;
 
 function EndGate({ book, signedIn, profile, onClose }: { book: Props['book']; signedIn: boolean; profile: Props['profile']; onClose: () => void }) {
   return (
-    <div className='absolute inset-0 z-20 flex items-center justify-center rounded-[14px] bg-royal-deep/70 p-3 backdrop-blur-sm' onClick={onClose}>
+    <div className='absolute inset-0 z-20 flex items-center justify-center bg-royal-deep/70 p-4 backdrop-blur-sm' onClick={onClose}>
       <div
         className='flex max-h-full w-full max-w-md flex-col items-center gap-3 overflow-y-auto rounded-[28px] bg-sand p-5 text-center text-ink shadow-2xl md:gap-4 md:p-9'
         onClick={(e) => e.stopPropagation()}
@@ -242,7 +243,7 @@ function EndGate({ book, signedIn, profile, onClose }: { book: Props['book']; si
         <Image src='/assets/images/StarfishGroup.png' alt='' width={220} height={130} className='w-32 md:w-52 [@media(max-height:520px)]:hidden' />
         <div className='font-heading text-xl font-semibold text-royal md:text-[28px]'>That's the end of the free sample!</div>
         <p className='text-sm font-semibold text-slate md:text-[15px]'>Get the paperback to find out where the map leads.</p>
-        <div className='grid w-full grid-cols-2 gap-2'>
+        <div className='flex w-full flex-wrap justify-center gap-2'>
           {book.buyLinks.map((l) => (
             <a key={l.url} href={l.url} target='_blank' rel='noopener noreferrer' className='btn-cta btn-sm font-body font-bold'>
               {l.label}
