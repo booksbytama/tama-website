@@ -3,6 +3,7 @@ import { Check } from 'lucide-react';
 import { Logo } from '@/components/site/logo';
 
 const POINTS = [
+  'Read Starfish Super Squad Book 1 online, cover to cover',
   'Printable poster, colouring pages and a reading tracker — instantly',
   'Free samples of every book, saved to each child’s shelf',
   'Kids pick their profile — no passwords for little ones',
@@ -18,7 +19,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           <Logo light size={40} />
         </div>
         <div className='relative my-8 flex max-w-lg flex-col gap-5 md:my-0'>
-          <h1 className='text-3xl font-bold leading-tight text-white md:text-[52px] md:leading-[1.05]'>Join free. Get the Coral Cove Starter Pack.</h1>
+          <h1 className='text-3xl font-bold leading-tight text-white md:text-[52px] md:leading-[1.05]'>Join free. Read Book 1 in full, and get the Starter Pack.</h1>
           <ul className='flex flex-col gap-3 text-[15px] font-semibold text-[#ddebf8] md:text-[17px]'>
             {POINTS.map((p) => (
               <li key={p} className='flex items-start gap-3'>

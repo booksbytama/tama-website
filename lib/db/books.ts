@@ -68,7 +68,23 @@ export async function signedPageUrls(bookId: string, limit: number, expiresInSec
   });
 }
 
+// Signed-in members may read books flagged member_reading_enabled in full;
+// everyone else gets the free sample. Paid tiers can refine `isMember` later.
 export function allowedPages(book: Book, isMember: boolean): number {
   if (isMember && book.member_reading_enabled) return book.page_count;
   return book.sample_enabled ? Math.min(book.preview_pages, book.page_count) : 0;
 }
+
+export const getFreeMemberBook = cache(async () => {
+  const { data, error } = await supabaseAdmin()
+    .from('books')
+    .select(BOOK_SELECT)
+    .eq('is_listed', true)
+    .eq('member_reading_enabled', true)
+    .gt('page_count', 0)
+    .order('sort_order')
+    .limit(1)
+    .maybeSingle();
+  if (error) throw error;
+  return (data ?? null) as BookWithSeries | null;
+});

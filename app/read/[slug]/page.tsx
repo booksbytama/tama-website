@@ -20,7 +20,7 @@ export default async function ReadPage({ params, searchParams }: Props) {
   const [book, user] = await Promise.all([getBookBySlug(slug), ensureUser()]);
   if (!book) notFound();
 
-  const isMember = false; // subscriptions later
+  const isMember = Boolean(user);
   const limit = allowedPages(book, isMember);
   const ip = hdrs.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'anon';
 
@@ -42,6 +42,7 @@ export default async function ReadPage({ params, searchParams }: Props) {
       pages={pages}
       startPage={startPage}
       isSample={limit < book.page_count}
+      memberFullBook={book.member_reading_enabled}
       profile={profile ? { id: profile.id, name: profile.name } : null}
       signedIn={Boolean(user)}
     />

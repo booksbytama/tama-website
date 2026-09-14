@@ -14,11 +14,13 @@ type Props = {
   pages: Page[];
   startPage: number;
   isSample: boolean;
+  memberFullBook: boolean;
   profile: { id: string; name: string } | null;
   signedIn: boolean;
 };
 
-export function BookReader({ book, pages, startPage, isSample, profile, signedIn }: Props) {
+export function BookReader({ book, pages, startPage, isSample, memberFullBook, profile, signedIn }: Props) {
+  const [saved, setSaved] = useState<'idle' | 'saving' | 'saved'>('idle');
   const total = pages.length;
   const [twoUp, setTwoUp] = useState(false);
   const [current, setCurrent] = useState(startPage);
@@ -43,7 +45,6 @@ export function BookReader({ book, pages, startPage, isSample, profile, signedIn
     return [left, left + 1].filter((n) => n <= total);
   }, [current, twoUp, total]);
 
-  const atEnd = spread[spread.length - 1] >= total;
   const atStart = current <= 1;
 
   const go = useCallback(
@@ -57,7 +58,7 @@ export function BookReader({ book, pages, startPage, isSample, profile, signedIn
         }
         const last = twoUp ? (c === 1 ? 1 : c % 2 === 0 ? c + 1 : c) : c;
         if (last >= total) {
-          if (isSample) setShowGate(true);
+          setShowGate(true);
           return c;
         }
         if (!twoUp) return c + 1;
@@ -79,7 +80,10 @@ export function BookReader({ book, pages, startPage, isSample, profile, signedIn
 
   useEffect(() => {
     if (!profile) return;
-    const t = setTimeout(() => void saveProgressAction(profile.id, book.id, current), 800);
+    setSaved('saving');
+    const t = setTimeout(() => {
+      saveProgressAction(profile.id, book.id, current).then(() => setSaved('saved')).catch(() => setSaved('idle'));
+    }, 800);
     return () => clearTimeout(t);
   }, [current, profile, book.id]);
 
@@ -183,10 +187,12 @@ export function BookReader({ book, pages, startPage, isSample, profile, signedIn
             })}
           </div>
         </div>
-        <NavButton dir={1} disabled={atEnd && !isSample} onClick={() => go(1)} />
+        <NavButton dir={1} disabled={false} onClick={() => go(1)} />
       </div>
 
-      {showGate && <EndGate book={book} signedIn={signedIn} profile={profile} onClose={() => setShowGate(false)} />}
+      {showGate && (
+        <EndGate book={book} isSample={isSample} memberFullBook={memberFullBook} signedIn={signedIn} profile={profile} saved={saved} onClose={() => setShowGate(false)} />
+      )}
 
       <footer className='relative z-10 flex shrink-0 items-center justify-center gap-2 px-4 pb-3 pt-1 md:pb-6 md:pt-2 [@media(max-height:520px)]:pb-1.5 [@media(max-height:520px)]:pt-0'>
         <div className='flex max-w-full gap-1.5 overflow-x-auto px-2 py-1'>
@@ -233,7 +239,24 @@ function NavButton({ dir, disabled, onClick }: { dir: 1 | -1; disabled: boolean;
   );
 }
 
-function EndGate({ book, signedIn, profile, onClose }: { book: Props['book']; signedIn: boolean; profile: Props['profile']; onClose: () => void }) {
+function EndGate({
+  book,
+  isSample,
+  memberFullBook,
+  signedIn,
+  profile,
+  saved,
+  onClose,
+}: {
+  book: Props['book'];
+  isSample: boolean;
+  memberFullBook: boolean;
+  signedIn: boolean;
+  profile: Props['profile'];
+  saved: 'idle' | 'saving' | 'saved';
+  onClose: () => void;
+}) {
+  const joinToRead = isSample && memberFullBook && !signedIn;
   return (
     <div className='absolute inset-0 z-20 flex items-center justify-center bg-royal-deep/70 p-4 backdrop-blur-sm' onClick={onClose}>
       <div
@@ -241,21 +264,41 @@ function EndGate({ book, signedIn, profile, onClose }: { book: Props['book']; si
         onClick={(e) => e.stopPropagation()}
       >
         <Image src='/assets/images/StarfishGroup.png' alt='' width={220} height={130} className='w-32 md:w-52 [@media(max-height:520px)]:hidden' />
-        <div className='font-heading text-xl font-semibold text-royal md:text-[28px]'>That's the end of the free sample!</div>
-        <p className='text-sm font-semibold text-slate md:text-[15px]'>Get the paperback to find out where the map leads.</p>
+        <div className='font-heading text-xl font-semibold text-royal md:text-[28px]'>
+          {!isSample ? 'The End!' : joinToRead ? 'Want to keep reading?' : "That's the end of the free sample!"}
+        </div>
+        <p className='text-sm font-semibold text-slate md:text-[15px]'>
+          {!isSample
+            ? 'Loved it? The paperback makes a great bedtime read — and the next adventure is waiting.'
+            : joinToRead
+              ? 'Join free and read the whole book right here. No card needed.'
+              : 'Get the paperback to find out where the map leads.'}
+        </p>
+        {joinToRead && (
+          <Link href='/sign-up' className='btn-primary btn-md w-full'>
+            Join free &amp; read the whole book
+          </Link>
+        )}
         <div className='flex w-full flex-wrap justify-center gap-2'>
           {book.buyLinks.map((l) => (
-            <a key={l.url} href={l.url} target='_blank' rel='noopener noreferrer' className='btn-cta btn-sm font-body font-bold'>
+            <a key={l.url} href={l.url} target='_blank' rel='noopener noreferrer' className={`${joinToRead ? 'btn-outline' : 'btn-cta'} btn-sm font-body font-bold`}>
               {l.label}
             </a>
           ))}
         </div>
+        {!isSample && (
+          <Link href='/books' className='text-[13px] font-bold text-ocean underline underline-offset-2'>See the next book</Link>
+        )}
         {!signedIn ? (
-          <p className='text-[13px] font-semibold text-mist'>
-            <Link href='/sign-up' className='text-ocean underline underline-offset-2'>Join free</Link> to save samples to a shelf and get the starter pack.
-          </p>
+          !joinToRead && (
+            <p className='text-[13px] font-semibold text-mist'>
+              <Link href='/sign-up' className='text-ocean underline underline-offset-2'>Join free</Link> to save books to a shelf and get the starter pack.
+            </p>
+          )
         ) : profile ? (
-          <p className='text-[13px] font-semibold text-mist'>Saved to {profile.name}'s shelf</p>
+          <p className='text-[13px] font-semibold text-mist'>
+            {saved === 'saved' ? `On ${profile.name}'s shelf` : saved === 'saving' ? `Saving to ${profile.name}'s shelf…` : `Couldn't save to ${profile.name}'s shelf`}
+          </p>
         ) : (
           <p className='text-[13px] font-semibold text-mist'>
             <Link href='/account' className='text-ocean underline underline-offset-2'>Pick a reader</Link> to save this to a shelf.

@@ -4,12 +4,13 @@ import { ArrowRight, BookOpen, Check } from 'lucide-react';
 import { BookCard, BookRow } from '@/components/books/book-card';
 import { StarterPackBand } from '@/components/site/starter-pack';
 import { Wave } from '@/components/site/wave';
-import { listBooks } from '@/lib/db/books';
+import { getFreeMemberBook, listBooks } from '@/lib/db/books';
 import { coverUrl } from '@/lib/supabase/admin';
 
 export default async function Home() {
-  const [picture, colouring] = await Promise.all([listBooks({ type: 'picture' }), listBooks({ type: 'colouring' })]);
+  const [picture, colouring, freeBook] = await Promise.all([listBooks({ type: 'picture' }), listBooks({ type: 'colouring' }), getFreeMemberBook()]);
   const firstSample = picture.find((b) => b.sample_enabled && b.page_count > 0);
+  const heroBook = freeBook ?? firstSample;
 
   return (
     <>
@@ -35,16 +36,17 @@ export default async function Home() {
         </div>
         <div className='flex flex-col gap-5 md:gap-6'>
           <span className='eyebrow inline-flex items-center gap-2 self-start rounded-full bg-foam px-3.5 py-2 text-ocean'>
-            <BookOpen className='size-4' strokeWidth={2.4} /> Free samples of every book
+            <BookOpen className='size-4' strokeWidth={2.4} /> {freeBook ? `Read ${freeBook.series_order ? `Book ${freeBook.series_order}` : freeBook.title} free when you join` : 'Free samples of every book'}
           </span>
           <h1 className='text-[40px] font-bold leading-[1.04] md:text-[68px] md:leading-[1.02]'>Ocean adventures for curious little readers</h1>
           <p className='max-w-lg text-base leading-relaxed text-slate md:text-xl'>
-            Picture books and colouring books about friendship, courage and the creatures of Coral Cove. Read a sample right here, then buy
-            wherever you like.
+            {freeBook
+              ? `Picture books and colouring books about friendship, courage and the creatures of Coral Cove. Read ${freeBook.series_order ? `Book ${freeBook.series_order}` : freeBook.title} in full for free, sample the rest, then buy wherever you like.`
+              : 'Picture books and colouring books about friendship, courage and the creatures of Coral Cove. Read a sample right here, then buy wherever you like.'}
           </p>
           <div className='flex flex-col gap-3 sm:flex-row sm:items-center'>
-            <Link href={firstSample ? `/read/${firstSample.slug}` : '/books'} className='btn-primary btn-lg'>
-              <BookOpen className='size-5' strokeWidth={2.2} /> Read a free sample
+            <Link href={heroBook ? `/read/${heroBook.slug}` : '/books'} className='btn-primary btn-lg'>
+              <BookOpen className='size-5' strokeWidth={2.2} /> {freeBook ? `Start reading ${freeBook.series_order ? `Book ${freeBook.series_order}` : ''} free` : 'Read a free sample'}
             </Link>
             <Link href='/books' className='btn-outline btn-lg'>
               Shop the books

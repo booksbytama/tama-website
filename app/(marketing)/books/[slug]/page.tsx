@@ -2,8 +2,8 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { BookOpen } from 'lucide-react';
 import { BuyLinks } from '@/components/books/buy-links';
+import { ReadCta } from '@/components/books/read-cta';
 import { getBookBySlug, listBooks, listBooksInSeries } from '@/lib/db/books';
 import { coverUrl } from '@/lib/supabase/admin';
 
@@ -53,13 +53,7 @@ export default async function BookPage({ params }: Props) {
           <div className='overflow-hidden rounded-[28px] bg-foam shadow-[0_20px_40px_rgba(27,42,107,0.22)]'>
             {cover && <Image src={cover} alt={book.title} width={840} height={840} priority className='aspect-square w-full object-cover' />}
           </div>
-          {samplePages > 0 ? (
-            <Link href={`/read/${book.slug}`} className='btn-primary btn-lg w-full'>
-              <BookOpen className='size-[22px]' strokeWidth={2.2} /> Read the free sample · {samplePages} pages
-            </Link>
-          ) : (
-            <div className='rounded-full border-2 border-dashed border-line py-4 text-center text-sm font-bold text-mist'>Sample coming soon</div>
-          )}
+          <ReadCta slug={book.slug} samplePages={samplePages} pageCount={book.page_count} memberFullBook={book.member_reading_enabled} />
           <BuyLinks links={book.buy_links} />
           <div className='text-center text-[13px] font-semibold text-mist'>Paperback · Printed on demand, ships worldwide</div>
         </div>
@@ -73,6 +67,7 @@ export default async function BookPage({ params }: Props) {
               </span>
             )}
             {ages[0] && <span className='eyebrow rounded-full bg-foam px-3.5 py-2 text-ocean'>{book.book_type === 'picture' ? 'Ages 4–10' : ages[0]}</span>}
+            {book.member_reading_enabled && book.page_count > 0 && <span className='eyebrow rounded-full bg-sun px-3.5 py-2 text-royal'>Free to read for members</span>}
           </div>
           <h1 className='text-[40px] font-bold leading-[1.05] md:text-[56px]'>{book.title}</h1>
           {book.short_description && book.short_description !== book.title && (

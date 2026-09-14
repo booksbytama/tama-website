@@ -79,7 +79,7 @@ export function BookForm({ book, series }: { book: BookWithSeries; series: Serie
           <input name='preview_pages' type='number' min={0} max={500} defaultValue={book.preview_pages} className='field w-24 py-2' />
           pages
         </label>
-        <Toggle name='member_reading_enabled' label='Full book for members (subscriptions, later)' defaultChecked={book.member_reading_enabled} dim />
+        <Toggle name='member_reading_enabled' label='Whole book free for signed-in members' defaultChecked={book.member_reading_enabled} />
       </div>
     </form>
   );
@@ -96,9 +96,9 @@ function Field({ label, hint, children }: { label: string; hint?: string; childr
   );
 }
 
-function Toggle({ name, label, defaultChecked, dim }: { name: string; label: string; defaultChecked: boolean; dim?: boolean }) {
+function Toggle({ name, label, defaultChecked }: { name: string; label: string; defaultChecked: boolean }) {
   return (
-    <label className={`flex items-center gap-3 text-sm font-bold text-slate ${dim ? 'opacity-60' : ''}`}>
+    <label className='flex items-center gap-3 text-sm font-bold text-slate'>
       <input name={name} type='checkbox' defaultChecked={defaultChecked} className='size-5 accent-seaweed' /> {label}
     </label>
   );

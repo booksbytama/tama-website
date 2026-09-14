@@ -6,6 +6,16 @@ import { Trash2 } from 'lucide-react';
 import { beginDownloadUploadAction, deleteDownloadAction, saveDownloadAction, toggleDownloadListedAction } from '@/app/admin/actions';
 import type { Download } from '@/lib/db/types';
 
+function Field({ label, hint, children }: { label: string; hint: string; children: React.ReactNode }) {
+  return (
+    <label className='flex flex-col gap-1'>
+      <span className='text-[13px] font-bold text-slate'>{label}</span>
+      {children}
+      <span className='text-xs font-semibold text-mist'>{hint}</span>
+    </label>
+  );
+}
+
 export function DownloadsManager({ items }: { items: Download[] }) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
@@ -74,11 +84,21 @@ export function DownloadsManager({ items }: { items: Download[] }) {
 
       <form onSubmit={onSubmit} className='flex flex-col gap-3.5 rounded-[20px] border border-[#e3e9f2] bg-white p-6'>
         <h2 className='text-lg font-semibold'>Add a file</h2>
-        <input name='title' required placeholder='Coral Cove poster (A3)' className='field' />
-        <input name='slug' required pattern='[a-z0-9-]+' placeholder='coral-cove-poster' className='field font-mono' />
-        <input name='description' placeholder='A3 · PDF' className='field' />
-        <input name='sort_order' type='number' defaultValue={0} className='field w-28' />
-        <input name='file' type='file' accept='application/pdf' required className='text-sm font-semibold text-slate file:mr-3 file:rounded-lg file:border-0 file:bg-foam file:px-3 file:py-2 file:font-bold file:text-ocean' />
+        <Field label='Title' hint='What parents see in their pack list'>
+          <input name='title' required placeholder='Coral Cove poster (A3)' className='field' />
+        </Field>
+        <Field label='Link name' hint='Lowercase letters, numbers and dashes; only appears in the download URL'>
+          <input name='slug' required pattern='[a-z0-9-]+' placeholder='coral-cove-poster' className='field font-mono' />
+        </Field>
+        <Field label='Description' hint='One short line under the title (optional)'>
+          <input name='description' placeholder='Print at A3 · PDF' className='field' />
+        </Field>
+        <Field label='Sort order' hint='Position in the list — 0 shows first'>
+          <input name='sort_order' type='number' defaultValue={0} className='field w-28' />
+        </Field>
+        <Field label='PDF file' hint='Up to 20 MB; stored privately, served via expiring links'>
+          <input name='file' type='file' accept='application/pdf' required className='text-sm font-semibold text-slate file:mr-3 file:rounded-lg file:border-0 file:bg-foam file:px-3 file:py-2 file:font-bold file:text-ocean' />
+        </Field>
         {error && <p className='text-sm font-bold text-coral'>{error}</p>}
         <button disabled={busy} className='rounded-xl bg-ocean px-5 py-3 text-[15px] font-bold text-white hover:bg-royal disabled:opacity-50'>
           {busy ? 'Uploading…' : 'Upload'}

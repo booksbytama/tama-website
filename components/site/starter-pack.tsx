@@ -3,6 +3,7 @@ import { Check, Map } from 'lucide-react';
 import { StarterPackCta } from './auth-buttons';
 
 const ITEMS = [
+  { title: 'Starfish Super Squad Book 1, read online in full', meta: 'Free for members' },
   { title: 'Coral Cove poster', meta: 'A3 · PDF' },
   { title: '6 colouring pages', meta: 'One from each book · PDF' },
   { title: 'Treasure-map reading tracker', meta: 'Sticker a stop per book · PDF' },
@@ -17,10 +18,10 @@ export function StarterPackBand() {
         <div className='relative grid gap-10 md:grid-cols-[1.2fr_1fr] md:items-center'>
           <div className='flex flex-col gap-4'>
             <span className='eyebrow self-start rounded-full bg-sun px-3.5 py-2 text-royal'>Free when you join</span>
-            <h2 className='text-3xl font-semibold text-white md:text-[40px] md:leading-tight'>Sign up and get the Coral Cove Starter Pack</h2>
+            <h2 className='text-3xl font-semibold text-white md:text-[40px] md:leading-tight'>Join free: read Book 1 in full, plus the Coral Cove Starter Pack</h2>
             <p className='max-w-lg text-[17px] leading-relaxed text-[#c9ddf2] md:text-lg'>
-              A printable poster, colouring pages and a reading map — yours to download the moment you join. Plus a profile for
-              each of your kids to save their favourite samples. Free, no card needed.
+              Members read the first Starfish Super Squad adventure online, cover to cover, and download a printable poster,
+              colouring pages and a reading map. A profile for each of your kids keeps their books on their own shelf. Free, no card needed.
             </p>
             <ul className='flex flex-col gap-2 text-[15px] font-semibold text-[#ddebf8] md:hidden'>
               {ITEMS.map((i) => (
@@ -34,13 +35,13 @@ export function StarterPackBand() {
             </div>
           </div>
           <div className='hidden grid-cols-3 gap-3.5 md:grid'>
-            <PackTile title={ITEMS[0].title} meta={ITEMS[0].meta}>
+            <PackTile title={ITEMS[1].title} meta={ITEMS[1].meta}>
               <Image src='/assets/images/hero.png' alt='' width={300} height={400} className='size-full object-cover' />
             </PackTile>
-            <PackTile title={ITEMS[1].title} meta={ITEMS[1].meta}>
+            <PackTile title={ITEMS[2].title} meta={ITEMS[2].meta}>
               <Image src='/assets/images/StarfishGroup.png' alt='' width={300} height={300} className='w-[90%] grayscale contrast-150 brightness-110' />
             </PackTile>
-            <PackTile title={ITEMS[2].title} meta={ITEMS[2].meta} tint>
+            <PackTile title={ITEMS[3].title} meta={ITEMS[3].meta} tint>
               <Map className='size-16 text-royal' strokeWidth={1.8} />
             </PackTile>
           </div>
