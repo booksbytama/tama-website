@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight, Lock, Maximize2, Minimize2, X } from 'lucide-react';
 import { saveProgressAction } from '@/app/(marketing)/account/actions';
 import type { BuyLink } from '@/lib/db/types';
@@ -19,17 +19,33 @@ type Props = {
   signedIn: boolean;
 };
 
+const TURN_MS = 900;
+const COMPLETE_AT = 0.35; // fraction of a page width dragged before a release completes the turn
+
 export function BookReader({ book, pages, startPage, isSample, memberFullBook, profile, signedIn }: Props) {
-  const [saved, setSaved] = useState<'idle' | 'saving' | 'saved'>('idle');
   const total = pages.length;
   const [twoUp, setTwoUp] = useState(false);
   const [current, setCurrent] = useState(startPage);
-  const [fullscreen, setFullscreen] = useState(false);
-  const rootRef = useRef<HTMLDivElement>(null);
   const [showGate, setShowGate] = useState(false);
+  const [fullscreen, setFullscreen] = useState(false);
+  const [saved, setSaved] = useState<'idle' | 'saving' | 'saved'>('idle');
+  const [moving, setMoving] = useState<number | null>(null);
+  const [dragAngle, setDragAngle] = useState<{ k: number; deg: number } | null>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const stageRef = useRef<HTMLDivElement>(null);
+  const [stage, setStage] = useState({ w: 0, h: 0 });
+  const busy = moving !== null;
+
+  // Sheet model. Two-up: sheet k carries page 2k+1 on its front (right-hand) and 2k+2 on its back (left-hand).
+  // Single: one page per sheet. `turned` = sheets folded over to the left.
+  const maxTurned = twoUp ? Math.floor(total / 2) : Math.max(0, total - 1);
+  const turned = Math.min(maxTurned, twoUp ? Math.floor(current / 2) : current - 1);
+  const sheetCount = twoUp ? Math.ceil(total / 2) : total;
+  const pageFor = (t: number) => (twoUp ? (t === 0 ? 1 : Math.min(2 * t + 1, total)) : t + 1);
+  const leftPage = twoUp && turned > 0 ? 2 * turned : null;
+  const rightPage = twoUp ? (2 * turned + 1 <= total ? 2 * turned + 1 : null) : current;
 
   useEffect(() => {
-    // Two facing pages whenever the screen is wide enough — includes phones held sideways.
     const mq = window.matchMedia('(orientation: landscape) and (min-width: 640px)');
     const apply = () => setTwoUp(mq.matches);
     apply();
@@ -37,40 +53,47 @@ export function BookReader({ book, pages, startPage, isSample, memberFullBook, p
     return () => mq.removeEventListener('change', apply);
   }, []);
 
-  // In two-up mode the cover (page 1) sits alone on the right, like a real book.
-  const spread = useMemo(() => {
-    if (!twoUp) return [current];
-    if (current === 1) return [1];
-    const left = current % 2 === 0 ? current : current - 1;
-    return [left, left + 1].filter((n) => n <= total);
-  }, [current, twoUp, total]);
+  useEffect(() => {
+    const el = stageRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(([e]) => setStage({ w: e.contentRect.width, h: e.contentRect.height }));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [total]);
 
-  const atStart = current <= 1;
+  const turnTo = useCallback(
+    (t: number, sheet: number) => {
+      setMoving(sheet);
+      setCurrent(pageFor(t));
+      setTimeout(() => setMoving(null), TURN_MS + 50);
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [twoUp, total],
+  );
 
   const go = useCallback(
     (dir: 1 | -1) => {
+      if (busy) return;
       setShowGate(false);
-      setCurrent((c) => {
-        if (dir === -1) {
-          if (c <= 1) return c;
-          if (!twoUp) return c - 1;
-          return c === 2 ? 1 : c % 2 === 0 ? c - 2 : c - 3;
-        }
-        const last = twoUp ? (c === 1 ? 1 : c % 2 === 0 ? c + 1 : c) : c;
-        if (last >= total) {
+      if (dir === 1) {
+        if (turned >= maxTurned) {
           setShowGate(true);
-          return c;
+          return;
         }
-        if (!twoUp) return c + 1;
-        return c === 1 ? 2 : c % 2 === 0 ? c + 2 : c + 1;
-      });
+        turnTo(turned + 1, turned);
+      } else if (turned > 0) {
+        turnTo(turned - 1, turned - 1);
+      }
     },
-    [twoUp, total, isSample],
+    [busy, turned, maxTurned, turnTo],
   );
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowRight' || e.key === ' ') go(1);
+      if (e.key === 'ArrowRight' || e.key === ' ') {
+        e.preventDefault();
+        go(1);
+      }
       if (e.key === 'ArrowLeft') go(-1);
       if (e.key === 'Escape') setShowGate(false);
     };
@@ -101,8 +124,7 @@ export function BookReader({ book, pages, startPage, isSample, memberFullBook, p
   // Fetch AND decode the pages around the current one so a turn paints instantly.
   const decoded = useRef(new Set<number>());
   useEffect(() => {
-    const wanted = [current - 2, current - 1, current + 1, current + 2, current + 3, current + 4];
-    for (const n of wanted) {
+    for (const n of [current - 3, current - 2, current - 1, current + 1, current + 2, current + 3, current + 4]) {
       const p = pages.find((x) => x.page_number === n);
       if (!p || decoded.current.has(n)) continue;
       decoded.current.add(n);
@@ -112,19 +134,50 @@ export function BookReader({ book, pages, startPage, isSample, memberFullBook, p
     }
   }, [current, pages]);
 
-  const touchX = useRef<number | null>(null);
-
-  // Measure the stage so page boxes get explicit pixel sizes (percentages inside a
-  // shrink-to-fit flex row collapse to zero on narrow screens).
-  const stageRef = useRef<HTMLDivElement>(null);
-  const [stage, setStage] = useState({ w: 0, h: 0 });
-  useEffect(() => {
-    const el = stageRef.current;
-    if (!el) return;
-    const ro = new ResizeObserver(([e]) => setStage({ w: e.contentRect.width, h: e.contentRect.height }));
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, [total]);
+  // Tap / swipe / drag-the-corner, all through pointer events on the book.
+  const drag = useRef<{ k: number; forward: boolean; startX: number; startT: number; width: number; moved: boolean } | null>(null);
+  const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (busy || showGate || e.button !== 0) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const onRight = twoUp ? e.clientX > rect.left + rect.width / 2 : e.clientX > rect.left + rect.width * 0.5;
+    const k = onRight ? turned : turned - 1;
+    if (onRight && turned >= maxTurned) {
+      setShowGate(true);
+      return;
+    }
+    if (k < 0 || k >= sheetCount) return;
+    drag.current = { k, forward: onRight, startX: e.clientX, startT: Date.now(), width: twoUp ? rect.width / 2 : rect.width, moved: false };
+    e.currentTarget.setPointerCapture(e.pointerId);
+  };
+  const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    const d = drag.current;
+    if (!d) return;
+    const dx = e.clientX - d.startX;
+    if (Math.abs(dx) > 6) d.moved = true;
+    if (!d.moved) return;
+    const base = d.forward ? 0 : -180;
+    const deg = Math.max(-180, Math.min(0, base + Math.max(-180, Math.min(180, (-dx / d.width) * 180))));
+    setDragAngle({ k: d.k, deg });
+  };
+  const onPointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
+    const d = drag.current;
+    if (!d) return;
+    drag.current = null;
+    setDragAngle(null);
+    const dx = e.clientX - d.startX;
+    const progress = Math.abs(dx) / d.width;
+    const flick = Date.now() - d.startT < 300 && Math.abs(dx) > 40;
+    const rightWay = d.forward ? dx <= 0 : dx >= 0;
+    const complete = !d.moved || (rightWay && (progress > COMPLETE_AT || flick));
+    if (!complete) {
+      // settle back
+      setMoving(d.k);
+      setTimeout(() => setMoving(null), TURN_MS + 50);
+      return;
+    }
+    if (d.forward) turnTo(turned + 1, turned);
+    else turnTo(turned - 1, turned - 1);
+  };
 
   if (total === 0) {
     return (
@@ -134,6 +187,19 @@ export function BookReader({ book, pages, startPage, isSample, memberFullBook, p
       </div>
     );
   }
+
+  // Book box from the stage: pages share the first page's aspect ratio.
+  const p0 = pages[0];
+  const ratio = p0.width && p0.height ? p0.width / p0.height : 1;
+  const pageH = Math.min(stage.h, (twoUp ? stage.w / 2 : stage.w) / ratio);
+  const pageW = pageH * ratio;
+  const bookW = twoUp ? pageW * 2 : pageW;
+  const visible = (k: number) => k >= turned - 2 && k <= turned + 2;
+  const label = twoUp
+    ? leftPage && rightPage
+      ? `Pages ${leftPage}–${rightPage}`
+      : `Page ${leftPage ?? rightPage}`
+    : `Page ${current}`;
 
   return (
     <div ref={rootRef} className='relative flex h-dvh flex-col overflow-hidden bg-gradient-to-b from-royal-deep to-[#1479c4] text-white select-none'>
@@ -154,8 +220,8 @@ export function BookReader({ book, pages, startPage, isSample, memberFullBook, p
           </div>
         </div>
         <div className='flex items-center gap-2 md:gap-3'>
-          <div className='rounded-full bg-white/15 px-3.5 py-2 text-[13px] font-bold md:text-sm'>
-            {spread.length === 2 ? `Pages ${spread[0]}–${spread[1]}` : `Page ${spread[0]}`} of {total}
+          <div className='rounded-full bg-white/15 px-3.5 py-2 text-[13px] font-bold tabular-nums md:text-sm'>
+            {label} of {total}
           </div>
           <button onClick={toggleFullscreen} aria-label='Toggle fullscreen' className='hidden size-11 items-center justify-center rounded-full bg-white/15 hover:bg-white/25 md:flex'>
             {fullscreen ? <Minimize2 className='size-[22px]' /> : <Maximize2 className='size-[22px]' />}
@@ -163,29 +229,44 @@ export function BookReader({ book, pages, startPage, isSample, memberFullBook, p
         </div>
       </header>
 
-      <div
-        className='relative z-10 flex min-h-0 flex-1 items-center justify-center gap-2 px-2 py-2 md:gap-7 md:px-8 md:py-3'
-        onTouchStart={(e) => (touchX.current = e.touches[0].clientX)}
-        onTouchEnd={(e) => {
-          if (touchX.current == null) return;
-          const dx = e.changedTouches[0].clientX - touchX.current;
-          if (Math.abs(dx) > 50) go(dx < 0 ? 1 : -1);
-          touchX.current = null;
-        }}
-      >
-        <NavButton dir={-1} disabled={atStart} onClick={() => go(-1)} />
+      <div className='relative z-10 flex min-h-0 flex-1 items-center justify-center gap-2 px-2 py-2 md:gap-7 md:px-8 md:py-3'>
+        <NavButton dir={-1} disabled={turned === 0} onClick={() => go(-1)} />
         <div ref={stageRef} className='relative flex h-full min-w-0 flex-1 items-center justify-center'>
-          <div className={`flex ${spread.length === 2 ? 'gap-[3px]' : ''} overflow-hidden rounded-[14px] shadow-[0_30px_60px_rgba(0,0,0,0.45)]`}>
-            {spread.map((n) => {
-              const p = pages.find((x) => x.page_number === n)!;
-              const size = fit(stage, p, spread.length);
-              return (
-                <div key={n} className='relative bg-[#f7fbff] animate-in fade-in duration-200' style={{ width: size.w, height: size.h }}>
-                  <Image src={p.url} alt={`${book.title} page ${n}`} fill unoptimized priority draggable={false} sizes='100vw' decoding='sync' className='object-contain' />
-                </div>
-              );
-            })}
-          </div>
+          {stage.w > 0 && (
+            <div
+              className='relative touch-none [perspective:2600px] drop-shadow-[0_30px_50px_rgba(0,0,0,0.45)]'
+              style={{ width: bookW, height: pageH }}
+              onPointerDown={onPointerDown}
+              onPointerMove={onPointerMove}
+              onPointerUp={onPointerUp}
+              onPointerCancel={onPointerUp}
+            >
+              {twoUp && <div className='pointer-events-none absolute left-1/2 top-0 z-[5] h-full w-10 -translate-x-1/2 bg-[linear-gradient(90deg,rgba(0,0,0,0)_0%,rgba(0,0,0,.14)_48%,rgba(0,0,0,.2)_50%,rgba(0,0,0,.14)_52%,rgba(0,0,0,0)_100%)]' />}
+              {Array.from({ length: sheetCount }, (_, k) => k)
+                .filter(visible)
+                .map((k) => {
+                  const front = pages[twoUp ? 2 * k : k];
+                  const back = twoUp ? pages[2 * k + 1] : undefined;
+                  const flipped = k < turned;
+                  const isMoving = moving === k || dragAngle?.k === k;
+                  const dragging = dragAngle?.k === k;
+                  const hiddenSingle = !twoUp && flipped && !isMoving;
+                  return (
+                    <div
+                      key={k}
+                      className={`absolute top-0 h-full origin-left [transform-style:preserve-3d] will-change-transform ${twoUp ? 'left-1/2 w-1/2' : 'left-0 w-full'} ${dragging ? '' : 'transition-transform duration-[900ms] ease-[cubic-bezier(.2,.75,.25,1)] motion-reduce:transition-none'} ${hiddenSingle ? 'invisible' : ''} ${busy ? 'cursor-default' : 'cursor-grab active:cursor-grabbing'}`}
+                      style={{
+                        zIndex: isMoving ? 30 : flipped ? 1 + k : 10 + (sheetCount - k),
+                        transform: dragging ? `rotateY(${dragAngle.deg}deg)` : flipped ? 'rotateY(-180deg)' : 'rotateY(0deg)',
+                      }}
+                    >
+                      <Face page={front} title={book.title} side='front' shaded={isMoving} rounded={twoUp ? 'rounded-r-[14px] rounded-l-[3px]' : 'rounded-[14px]'} />
+                      <Face page={back} title={book.title} side='back' shaded={isMoving} rounded={twoUp ? 'rounded-l-[14px] rounded-r-[3px]' : 'rounded-[14px]'} />
+                    </div>
+                  );
+                })}
+            </div>
+          )}
         </div>
         <NavButton dir={1} disabled={false} onClick={() => go(1)} />
       </div>
@@ -200,11 +281,12 @@ export function BookReader({ book, pages, startPage, isSample, memberFullBook, p
             <button
               key={p.page_number}
               onClick={() => {
+                if (busy) return;
                 setShowGate(false);
                 setCurrent(p.page_number);
               }}
               aria-label={`Go to page ${p.page_number}`}
-              className={`size-2.5 shrink-0 rounded-full transition-colors md:size-3 ${spread.includes(p.page_number) ? 'bg-sun' : 'bg-white/35 hover:bg-white/60'}`}
+              className={`size-2.5 shrink-0 rounded-full transition-colors md:size-3 ${p.page_number === leftPage || p.page_number === rightPage ? 'bg-sun' : 'bg-white/35 hover:bg-white/60'}`}
             />
           ))}
         </div>
@@ -218,11 +300,25 @@ export function BookReader({ book, pages, startPage, isSample, memberFullBook, p
   );
 }
 
-function fit(stage: { w: number; h: number }, p: Page, perSpread: number) {
-  const ratio = p.width && p.height ? p.width / p.height : 1;
-  const maxW = perSpread === 2 ? (stage.w - 3) / 2 : stage.w;
-  const h = Math.min(stage.h, maxW / ratio);
-  return { w: Math.round(h * ratio), h: Math.round(h) };
+function Face({ page, title, side, shaded, rounded }: { page?: Page; title: string; side: 'front' | 'back'; shaded: boolean; rounded: string }) {
+  return (
+    <div
+      className={`absolute inset-0 overflow-hidden bg-[#f7fbff] [backface-visibility:hidden] ${rounded}`}
+      style={side === 'back' ? { transform: 'rotateY(180deg)' } : undefined}
+    >
+      {page && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={page.url} alt={`${title} page ${page.page_number}`} draggable={false} className='size-full object-contain' />
+      )}
+      <div
+        className={`pointer-events-none absolute inset-0 transition-opacity duration-300 ${shaded ? 'opacity-100' : 'opacity-0'} ${
+          side === 'front'
+            ? 'bg-[linear-gradient(90deg,rgba(0,0,0,.35)_0%,rgba(0,0,0,0)_30%,rgba(255,255,255,.18)_55%,rgba(0,0,0,.28)_100%)]'
+            : 'bg-[linear-gradient(270deg,rgba(0,0,0,.35)_0%,rgba(0,0,0,0)_30%,rgba(255,255,255,.18)_55%,rgba(0,0,0,.28)_100%)]'
+        }`}
+      />
+    </div>
+  );
 }
 
 function NavButton({ dir, disabled, onClick }: { dir: 1 | -1; disabled: boolean; onClick: () => void }) {
