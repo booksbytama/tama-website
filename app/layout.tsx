@@ -19,6 +19,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <ClerkProvider
+      signInUrl='/sign-in'
+      signUpUrl='/sign-up'
+      signInForceRedirectUrl='/account'
+      signUpForceRedirectUrl='/account/welcome'
       appearance={{
         variables: {
           colorPrimary: '#0e7fc0',
