@@ -1,5 +1,3 @@
-import 'server-only';
-
 export const NARRATION_VOICES = [
   { id: 'en-AU-Neural2-A', label: 'Voice A · female' },
   { id: 'en-AU-Neural2-C', label: 'Voice C · female' },
@@ -15,7 +13,9 @@ const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replac
 export async function synthesizeWords(words: string[], voice: NarrationVoice, rate = 0.95): Promise<{ mp3: Buffer; timings: number[] }> {
   const key = process.env.GOOGLE_TTS_API_KEY;
   if (!key) throw new Error('GOOGLE_TTS_API_KEY is not set');
-  const ssml = `<speak>${words.map((w, i) => `<mark name="w${i}"/>${esc(w)}`).join(' ')}</speak>`;
+  // A beat after each sentence and a shorter one after commas, so kids can take the picture in.
+  const pause = (w: string) => (/[.!?…][”"’')\]]*$/.test(w) ? '<break time="550ms"/>' : /[,;:][”"’')\]]*$/.test(w) ? '<break time="180ms"/>' : '');
+  const ssml = `<speak>${words.map((w, i) => `<mark name="w${i}"/>${esc(w)}${pause(w)}`).join(' ')}</speak>`;
   const res = await fetch(`https://texttospeech.googleapis.com/v1beta1/text:synthesize?key=${key}`, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },

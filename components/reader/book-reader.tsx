@@ -38,7 +38,6 @@ export function BookReader({ book, pages, startPage, isSample, memberFullBook, r
   const [slow, setSlow] = useState(false);
   const [autoTurn, setAutoTurn] = useState(true);
   const [lit, setLit] = useState<{ page: number; idx: number } | null>(null);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
   const readSession = useRef(0);
   const rootRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
@@ -131,26 +130,53 @@ export function BookReader({ book, pages, startPage, isSample, memberFullBook, r
     else void rootRef.current?.requestFullscreen?.();
   };
 
-  // ---- Read aloud: one <audio> element (unlocked by the first tap, so iOS allows later pages), words lit from timings.
+  // ---- Read aloud via Web Audio. The first tap unlocks the AudioContext; after that every page
+  // (including ones started by auto-turn) may play without a gesture, which iOS forbids for <audio>.
+  const ctxRef = useRef<AudioContext | null>(null);
+  const sourceRef = useRef<AudioBufferSourceNode | null>(null);
+  const bufferCache = useRef(new Map<string, Promise<AudioBuffer>>());
+  const rafRef = useRef(0);
+
+  const loadBuffer = useCallback((url: string) => {
+    const ctx = ctxRef.current!;
+    let p = bufferCache.current.get(url);
+    if (!p) {
+      p = fetch(url).then((r) => r.arrayBuffer()).then((b) => ctx.decodeAudioData(b));
+      bufferCache.current.set(url, p);
+      p.catch(() => bufferCache.current.delete(url));
+    }
+    return p;
+  }, []);
+
   const pagesOnView = useCallback(() => {
     const nums = twoUp ? [leftPage, rightPage].filter((n): n is number => n !== null) : [current];
     return nums.map((n) => pages.find((p) => p.page_number === n)).filter((p): p is Page => Boolean(p?.audioUrl && p.timings && p.words));
   }, [twoUp, leftPage, rightPage, current, pages]);
 
-  const stopReading = useCallback(() => {
-    readSession.current++;
-    audioRef.current?.pause();
-    setReading(false);
-    setLit(null);
+  const haltAudio = useCallback(() => {
+    cancelAnimationFrame(rafRef.current);
+    try {
+      sourceRef.current?.stop();
+    } catch {}
+    sourceRef.current = null;
   }, []);
 
+  const stopReading = useCallback(() => {
+    readSession.current++;
+    haltAudio();
+    setReading(false);
+    setLit(null);
+  }, [haltAudio]);
+
+  const slowRef = useRef(slow);
+  slowRef.current = slow;
+
   const playPages = useCallback(
-    (queue: Page[], session: number) => {
-      const audio = audioRef.current;
-      if (!audio || session !== readSession.current) return;
+    async (queue: Page[], session: number) => {
+      const ctx = ctxRef.current;
+      if (!ctx || session !== readSession.current) return;
       const pg = queue[0];
       if (!pg) {
-        // Finished what's on view.
         if (autoTurn && turned < maxTurned) {
           turnTo(turned + 1, turned);
         } else {
@@ -161,30 +187,52 @@ export function BookReader({ book, pages, startPage, isSample, memberFullBook, r
         return;
       }
       const timings = pg.timings!;
-      audio.src = pg.audioUrl!;
-      audio.playbackRate = slow ? 0.8 : 1;
-      audio.ontimeupdate = () => {
-        if (session !== readSession.current) return;
-        const t = audio.currentTime + 0.05;
+      let buffer: AudioBuffer;
+      try {
+        buffer = await loadBuffer(pg.audioUrl!);
+      } catch {
+        stopReading();
+        return;
+      }
+      if (session !== readSession.current) return;
+      const next = queue[1];
+      if (next?.audioUrl) void loadBuffer(next.audioUrl);
+
+      haltAudio();
+      const src = ctx.createBufferSource();
+      src.buffer = buffer;
+      const rate = slowRef.current ? 0.85 : 1;
+      src.playbackRate.value = rate;
+      src.connect(ctx.destination);
+      const startedAt = ctx.currentTime;
+      src.onended = () => {
+        if (session === readSession.current && sourceRef.current === src) void playPages(queue.slice(1), session);
+      };
+      sourceRef.current = src;
+      src.start();
+      const tick = () => {
+        if (session !== readSession.current || sourceRef.current !== src) return;
+        const t = (ctx.currentTime - startedAt) * rate + 0.05;
         let i = 0;
         while (i + 1 < timings.length && timings[i + 1] <= t) i++;
-        setLit({ page: pg.page_number, idx: i });
+        setLit((prev) => (prev?.page === pg.page_number && prev.idx === i ? prev : { page: pg.page_number, idx: i }));
+        rafRef.current = requestAnimationFrame(tick);
       };
-      audio.onended = () => session === readSession.current && playPages(queue.slice(1), session);
-      audio.onerror = () => session === readSession.current && stopReading();
-      void audio.play().catch(() => stopReading());
-      const next = queue[1] ?? null;
-      if (next?.audioUrl) new Audio(next.audioUrl).preload = 'auto';
+      rafRef.current = requestAnimationFrame(tick);
     },
-    [autoTurn, turned, maxTurned, turnTo, slow, stopReading],
+    [autoTurn, turned, maxTurned, turnTo, loadBuffer, haltAudio, stopReading],
   );
 
   const startReading = useCallback(() => {
-    if (!audioRef.current) audioRef.current = new Audio();
+    if (!ctxRef.current) {
+      const Ctx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      ctxRef.current = new Ctx();
+    }
+    void ctxRef.current.resume();
     const session = ++readSession.current;
     setReading(true);
     setShowGate(false);
-    playPages(pagesOnView(), session);
+    void playPages(pagesOnView(), session);
   }, [pagesOnView, playPages]);
 
   // Whatever turned the page (auto-turn, tap, arrow), keep reading on the new spread once the curl settles.
@@ -193,22 +241,22 @@ export function BookReader({ book, pages, startPage, isSample, memberFullBook, r
   useEffect(() => {
     if (!readingRef.current) return;
     readSession.current++;
-    audioRef.current?.pause();
+    haltAudio();
     setLit(null);
     const t = setTimeout(() => {
       if (!readingRef.current) return;
       const session = ++readSession.current;
-      playPages(pagesOnView(), session);
+      void playPages(pagesOnView(), session);
     }, TURN_MS + 100);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [current, twoUp]);
 
-  useEffect(() => {
-    if (audioRef.current) audioRef.current.playbackRate = slow ? 0.8 : 1;
-  }, [slow]);
-
-  useEffect(() => () => audioRef.current?.pause(), []);
+  // Slow/normal takes effect from the next page (restarting mid-word is jarring).
+  useEffect(() => () => {
+    haltAudio();
+    void ctxRef.current?.close();
+  }, [haltAudio]);
 
   // Fetch AND decode the pages around the current one so a turn paints instantly.
   const decoded = useRef(new Set<number>());

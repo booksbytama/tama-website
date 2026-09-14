@@ -9,6 +9,8 @@ npm run dev          # Next.js dev server (Turbopack) at localhost:3000
 npm run build        # production build (needs a reachable Supabase — pages prerender from the DB)
 npm run db:migrate   # apply supabase/migrations/*.sql via DATABASE_URL (tracks applied files in _migrations)
 npm run db:seed      # one-off: upsert the original six books + covers into Supabase
+npx tsx --env-file=.env.local scripts/backfill-words.mjs <slug> <pdf>   # fill page words/positions for an already-uploaded book
+npx tsx --env-file=.env.local scripts/narrate-book.mts <slug> <voice>   # (re)generate Google TTS narration for a book
 npx tsc --noEmit     # type check (there is no eslint config; `next lint` is unconfigured)
 ```
 
@@ -25,6 +27,8 @@ Marketing + reading site for children's-book publisher Books by Tama. Next.js 15
 **Auth model** (`lib/auth.ts`): Clerk holds the parent/teacher account; `ensureUser()` lazily upserts a row in `users` (works without the webhook). Admin = Clerk `publicMetadata.role === 'admin'`, checked by `isAdmin()`/`requireAdmin()`. Child "profiles" are rows under a user, never Clerk accounts; the active profile is a cookie (`lib/profile-cookie.ts`). Middleware only establishes the session — pages guard themselves with `requireUser`/`requireAdmin`.
 
 **Reader pipeline**: admin uploads a PDF at `/admin/books/[id]`; `components/admin/pdf-uploader.tsx` converts pages to WebP *in the browser* with pdf.js and PUTs them to signed upload URLs (server actions in `app/admin/actions.ts` mint URLs and record `book_pages`). `/read/[slug]` computes how many pages the viewer may see (`allowedPages()` — `preview_pages` for everyone; full book gated behind `member_reading_enabled`, unused until subscriptions exist) and passes signed page URLs to the client `BookReader`.
+
+**Read-aloud**: at upload the browser also extracts each page's words + boxes (`lib/pdf-words.ts`) into `book_pages.words`. Admin's narration panel calls Google Cloud TTS per page (`lib/tts.ts`, Neural2 en-AU voices — only these return per-word timings) and stores MP3s in the private `audio` bucket with `timings`. The reader plays them through Web Audio (iOS allows follow-on pages that way) and lights `words` boxes on the artwork.
 
 **Route groups**: `app/(marketing)` = public site + `/account/*` (shares header/footer/mobile tab bar); `app/(auth)` = Clerk sign-in/up with its own split layout; `app/read` = full-screen reader, no chrome; `app/admin` = sidebar layout, admin-only.
 

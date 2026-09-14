@@ -26,8 +26,8 @@ export function extractWords(items: TextItem[], pageWidth: number, pageHeight: n
         t: m[0],
         l: round((x / pageWidth) * 100),
         w: round((ww / pageWidth) * 100),
-        top: round(((pageHeight - (y + 0.78 * h)) / pageHeight) * 100),
-        h: round(((1.05 * h) / pageHeight) * 100),
+        top: round(((pageHeight - (y + 0.64 * h)) / pageHeight) * 100),
+        h: round(((1.0 * h) / pageHeight) * 100),
       });
     }
   }

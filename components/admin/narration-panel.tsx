@@ -19,7 +19,7 @@ type Props = {
 
 export function NarrationPanel({ bookId, voices, currentVoice, enabled, pageCount, pagesWithWords, pagesWithAudio, pageNumbersWithWords, pageNumbersMissingAudio }: Props) {
   const router = useRouter();
-  const [voice, setVoice] = useState(currentVoice ?? voices[0]?.id ?? '');
+  const [voice, setVoice] = useState(currentVoice ?? 'en-AU-Neural2-C');
   const [busy, setBusy] = useState<string | null>(null);
   const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
   const [error, setError] = useState<string | null>(null);
