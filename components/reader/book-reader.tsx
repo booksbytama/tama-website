@@ -27,7 +27,8 @@ export function BookReader({ book, pages, startPage, isSample, profile, signedIn
   const [showGate, setShowGate] = useState(false);
 
   useEffect(() => {
-    const mq = window.matchMedia('(min-width: 900px) and (orientation: landscape)');
+    // Two facing pages whenever the screen is wide enough — includes phones held sideways.
+    const mq = window.matchMedia('(orientation: landscape) and (min-width: 640px)');
     const apply = () => setTwoUp(mq.matches);
     apply();
     mq.addEventListener('change', apply);
@@ -233,11 +234,14 @@ function NavButton({ dir, disabled, onClick }: { dir: 1 | -1; disabled: boolean;
 
 function EndGate({ book, signedIn, profile, onClose }: { book: Props['book']; signedIn: boolean; profile: Props['profile']; onClose: () => void }) {
   return (
-    <div className='absolute inset-0 z-20 flex items-center justify-center rounded-[14px] bg-royal-deep/70 p-4 backdrop-blur-sm' onClick={onClose}>
-      <div className='flex max-w-md flex-col items-center gap-4 rounded-[28px] bg-sand p-7 text-center text-ink shadow-2xl md:p-9' onClick={(e) => e.stopPropagation()}>
-        <Image src='/assets/images/StarfishGroup.png' alt='' width={220} height={130} className='w-40 md:w-52' />
-        <div className='font-heading text-2xl font-semibold text-royal md:text-[28px]'>That's the end of the free sample!</div>
-        <p className='text-[15px] font-semibold text-slate'>Get the paperback to find out where the map leads.</p>
+    <div className='absolute inset-0 z-20 flex items-center justify-center rounded-[14px] bg-royal-deep/70 p-3 backdrop-blur-sm' onClick={onClose}>
+      <div
+        className='flex max-h-full w-full max-w-md flex-col items-center gap-3 overflow-y-auto rounded-[28px] bg-sand p-5 text-center text-ink shadow-2xl md:gap-4 md:p-9'
+        onClick={(e) => e.stopPropagation()}
+      >
+        <Image src='/assets/images/StarfishGroup.png' alt='' width={220} height={130} className='w-32 md:w-52 [@media(max-height:520px)]:hidden' />
+        <div className='font-heading text-xl font-semibold text-royal md:text-[28px]'>That's the end of the free sample!</div>
+        <p className='text-sm font-semibold text-slate md:text-[15px]'>Get the paperback to find out where the map leads.</p>
         <div className='grid w-full grid-cols-2 gap-2'>
           {book.buyLinks.map((l) => (
             <a key={l.url} href={l.url} target='_blank' rel='noopener noreferrer' className='btn-cta btn-sm font-body font-bold'>
