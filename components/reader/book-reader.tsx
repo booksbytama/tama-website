@@ -154,22 +154,18 @@ export function BookReader({ book, pages, startPage, isSample, profile, signedIn
         }}
       >
         <NavButton dir={-1} disabled={atStart} onClick={() => go(-1)} />
-        <div className='relative flex h-full max-h-[calc(100dvh-190px)] w-full items-center justify-center'>
-          <div className={`grid h-full ${spread.length === 2 ? 'grid-cols-2 gap-[3px]' : 'grid-cols-1'} max-w-full overflow-hidden rounded-[14px] shadow-[0_30px_60px_rgba(0,0,0,0.45)]`}>
+        <div className='relative flex h-[calc(100dvh-150px)] w-full items-center justify-center md:h-[calc(100dvh-190px)]'>
+          <div className={`flex h-full max-w-full ${spread.length === 2 ? 'gap-[3px]' : ''} overflow-hidden rounded-[14px] shadow-[0_30px_60px_rgba(0,0,0,0.45)]`}>
             {spread.map((n) => {
               const p = pages.find((x) => x.page_number === n)!;
+              const ratio = p.width && p.height ? p.width / p.height : 1;
               return (
-                <div key={n} className='relative flex h-full items-center justify-center bg-[#f7fbff]'>
-                  <Image
-                    src={p.url}
-                    alt={`${book.title} page ${n}`}
-                    width={p.width ?? 1200}
-                    height={p.height ?? 1200}
-                    unoptimized
-                    priority
-                    draggable={false}
-                    className='h-full w-auto max-w-full object-contain'
-                  />
+                <div
+                  key={n}
+                  className='relative h-full min-w-0 bg-[#f7fbff]'
+                  style={{ aspectRatio: ratio, maxWidth: spread.length === 2 ? '50%' : '100%' }}
+                >
+                  <Image src={p.url} alt={`${book.title} page ${n}`} fill unoptimized priority draggable={false} sizes='100vw' className='object-contain' />
                 </div>
               );
             })}
