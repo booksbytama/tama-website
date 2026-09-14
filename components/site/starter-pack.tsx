@@ -1,7 +1,6 @@
 import Image from 'next/image';
-import Link from 'next/link';
-import { auth } from '@clerk/nextjs/server';
 import { Check, Map } from 'lucide-react';
+import { StarterPackCta } from './auth-buttons';
 
 const ITEMS = [
   { title: 'Coral Cove poster', meta: 'A3 · PDF' },
@@ -9,8 +8,7 @@ const ITEMS = [
   { title: 'Treasure-map reading tracker', meta: 'Sticker a stop per book · PDF' },
 ];
 
-export async function StarterPackBand() {
-  const { userId } = await auth();
+export function StarterPackBand() {
   return (
     <section className='wrapper'>
       <div className='relative overflow-hidden rounded-[2rem] bg-royal px-6 py-10 text-white md:rounded-[2.5rem] md:px-16 md:py-14'>
@@ -32,20 +30,7 @@ export async function StarterPackBand() {
               ))}
             </ul>
             <div className='mt-2 flex flex-col gap-3 sm:flex-row'>
-              {userId ? (
-                <Link href='/account/pack' className='btn-cta btn-lg'>
-                  Open my starter pack
-                </Link>
-              ) : (
-                <>
-                  <Link href='/sign-up' className='btn-cta btn-lg'>
-                    Get my free pack
-                  </Link>
-                  <Link href='/sign-in' className='btn-ghost-light btn-lg'>
-                    Sign in
-                  </Link>
-                </>
-              )}
+              <StarterPackCta />
             </div>
           </div>
           <div className='hidden grid-cols-3 gap-3.5 md:grid'>

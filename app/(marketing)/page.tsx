@@ -127,3 +127,6 @@ export default async function Home() {
     </>
   );
 }
+
+// Cached at the edge; admin saves call revalidatePath.
+export const revalidate = 300;

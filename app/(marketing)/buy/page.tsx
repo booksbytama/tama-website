@@ -47,3 +47,6 @@ export default async function Buy() {
     </div>
   );
 }
+
+// Cached at the edge; admin saves call revalidatePath.
+export const revalidate = 300;

@@ -109,6 +109,18 @@ export function BookReader({ book, pages, startPage, isSample, profile, signedIn
 
   const touchX = useRef<number | null>(null);
 
+  // Measure the stage so page boxes get explicit pixel sizes (percentages inside a
+  // shrink-to-fit flex row collapse to zero on narrow screens).
+  const stageRef = useRef<HTMLDivElement>(null);
+  const [stage, setStage] = useState({ w: 0, h: 0 });
+  useEffect(() => {
+    const el = stageRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(([e]) => setStage({ w: e.contentRect.width, h: e.contentRect.height }));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [total]);
+
   if (total === 0) {
     return (
       <div className='flex min-h-screen flex-col items-center justify-center gap-4 bg-royal-deep p-6 text-center text-white'>
@@ -157,17 +169,13 @@ export function BookReader({ book, pages, startPage, isSample, profile, signedIn
         }}
       >
         <NavButton dir={-1} disabled={atStart} onClick={() => go(-1)} />
-        <div className='relative flex h-[calc(100dvh-150px)] w-full items-center justify-center md:h-[calc(100dvh-190px)]'>
-          <div className={`flex h-full max-w-full ${spread.length === 2 ? 'gap-[3px]' : ''} overflow-hidden rounded-[14px] shadow-[0_30px_60px_rgba(0,0,0,0.45)]`}>
+        <div ref={stageRef} className='relative flex h-[calc(100dvh-150px)] w-full items-center justify-center md:h-[calc(100dvh-190px)]'>
+          <div className={`flex ${spread.length === 2 ? 'gap-[3px]' : ''} overflow-hidden rounded-[14px] shadow-[0_30px_60px_rgba(0,0,0,0.45)]`}>
             {spread.map((n) => {
               const p = pages.find((x) => x.page_number === n)!;
-              const ratio = p.width && p.height ? p.width / p.height : 1;
+              const size = fit(stage, p, spread.length);
               return (
-                <div
-                  key={n}
-                  className='relative h-full min-w-0 bg-[#f7fbff] animate-in fade-in duration-200'
-                  style={{ aspectRatio: ratio, maxWidth: spread.length === 2 ? '50%' : '100%' }}
-                >
+                <div key={n} className='relative bg-[#f7fbff] animate-in fade-in duration-200' style={{ width: size.w, height: size.h }}>
                   <Image src={p.url} alt={`${book.title} page ${n}`} fill unoptimized priority draggable={false} sizes='100vw' decoding='sync' className='object-contain' />
                 </div>
               );
@@ -200,6 +208,13 @@ export function BookReader({ book, pages, startPage, isSample, profile, signedIn
       </footer>
     </div>
   );
+}
+
+function fit(stage: { w: number; h: number }, p: Page, perSpread: number) {
+  const ratio = p.width && p.height ? p.width / p.height : 1;
+  const maxW = perSpread === 2 ? (stage.w - 3) / 2 : stage.w;
+  const h = Math.min(stage.h, maxW / ratio);
+  return { w: Math.round(h * ratio), h: Math.round(h) };
 }
 
 function NavButton({ dir, disabled, onClick }: { dir: 1 | -1; disabled: boolean; onClick: () => void }) {

@@ -4,10 +4,14 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { BookOpen } from 'lucide-react';
 import { BuyLinks } from '@/components/books/buy-links';
-import { getBookBySlug, listBooksInSeries } from '@/lib/db/books';
+import { getBookBySlug, listBooks, listBooksInSeries } from '@/lib/db/books';
 import { coverUrl } from '@/lib/supabase/admin';
 
 type Props = { params: Promise<{ slug: string }> };
+
+export async function generateStaticParams() {
+  return (await listBooks()).map((b) => ({ slug: b.slug }));
+}
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
@@ -127,3 +131,6 @@ export default async function BookPage({ params }: Props) {
     </div>
   );
 }
+
+// Cached at the edge; admin saves call revalidatePath.
+export const revalidate = 300;
