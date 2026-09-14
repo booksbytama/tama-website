@@ -46,3 +46,6 @@ yarn-error.log*
 # local-only planning docs (business/personal context, kept out of git)
 .doc/
 next-env.d.ts
+
+# local book PDFs for testing — never commit
+samples/
