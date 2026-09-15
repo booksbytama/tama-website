@@ -50,19 +50,30 @@ export function NarrationPanel({ bookId, voices, currentVoice, enabled, pageCoun
     setBusy('generate');
     setProgress({ done: 0, total: pageNumbers.length });
     const failures: number[] = [];
+    let lastError = '';
     for (const [i, n] of pageNumbers.entries()) {
       let ok = false;
       for (let attempt = 0; attempt < 3 && !ok; attempt++) {
         try {
           await narratePageAction(bookId, n, voice);
           ok = true;
-        } catch {
+        } catch (e) {
+          lastError = e instanceof Error ? e.message : String(e);
+          // A missing key or config problem will fail every page — don't grind through 3 retries each.
+          if (/GOOGLE_TTS_API_KEY|not set|API key/i.test(lastError)) break;
           await new Promise((r) => setTimeout(r, 1500 * (attempt + 1)));
         }
       }
-      if (!ok) failures.push(n);
+      if (!ok) {
+        failures.push(n);
+        if (/GOOGLE_TTS_API_KEY|not set|API key/i.test(lastError)) {
+          failures.push(...pageNumbers.slice(i + 1));
+          break;
+        }
+      }
       setProgress({ done: i + 1, total: pageNumbers.length });
     }
+    if (failures.length) setError(lastError || 'Generation failed');
     try {
       if (failures.length < pageNumbers.length) await setNarrationAction(bookId, { voice, enabled: true });
     } catch (e) {
