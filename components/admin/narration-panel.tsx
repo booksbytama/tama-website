@@ -153,7 +153,18 @@ export function NarrationPanel({ bookId, voices, currentVoice, enabled, pageCoun
         >
           {pagesWithAudio > 0 ? 'Regenerate all pages' : 'Generate voice for all pages'}
         </button>
-        <span className='text-[12px] font-semibold text-mist'>About {Math.ceil(pagesWithWords * 1.5)}s. Uses your Google free allowance (a book is ~0.3% of a month).</span>
+        <form
+          className='flex items-center gap-2'
+          onSubmit={(e) => {
+            e.preventDefault();
+            const nums = String(new FormData(e.currentTarget).get('pages') ?? '').split(/[,\s]+/).map(Number).filter((n) => pageNumbersWithWords.includes(n));
+            if (nums.length) void generate(nums);
+          }}
+        >
+          <input name='pages' placeholder='e.g. 7, 20' className='field w-32 py-2 text-sm' aria-label='Pages to regenerate' />
+          <button disabled={busy !== null} className='rounded-xl border-2 border-line bg-white px-4 py-2 text-[14px] font-bold text-royal hover:border-ocean disabled:opacity-50'>Regenerate pages</button>
+        </form>
+        <span className='w-full text-[12px] font-semibold text-mist'>About 1.5s per page. Uses your Google free allowance (a whole book is ~0.3% of a month).</span>
       </div>
     </section>
   );

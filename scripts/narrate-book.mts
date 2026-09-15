@@ -1,21 +1,24 @@
 // Generate (or regenerate) narration for every text page of a book from the command line.
-// Usage: npx tsx --env-file=.env.local scripts/narrate-book.mts <book-slug> <voice-id>
+// Usage: npx tsx --env-file=.env.local scripts/narrate-book.mts <book-slug> <voice-id> [page,page,...]
 import { createClient } from '@supabase/supabase-js';
 import { NARRATION_VOICES, synthesizeWords, type NarrationVoice } from '../lib/tts';
 
-const [slug, voice] = process.argv.slice(2) as [string, NarrationVoice];
+const [slug, voice, only] = process.argv.slice(2) as [string, NarrationVoice, string?];
+const onlyPages = only ? only.split(',').map(Number) : null;
 if (!slug || !NARRATION_VOICES.some((v) => v.id === voice)) throw new Error(`usage: narrate-book.mts <slug> <${NARRATION_VOICES.map((v) => v.id).join('|')}>`);
 const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SECRET_KEY!, { auth: { persistSession: false } });
 const { data: book, error } = await db.from('books').select('id').eq('slug', slug).single();
 if (error) throw error;
 const { data: pages } = await db.from('book_pages').select('id, page_number, words, audio_path').eq('book_id', book.id).not('words', 'is', null).order('page_number');
+const { data: pron } = await db.from('pronunciations').select('word, say_as');
+const dict = Object.fromEntries((pron ?? []).map((r) => [r.word, r.say_as]));
 const failed: number[] = [];
-for (const p of pages ?? []) {
+for (const p of (pages ?? []).filter((p) => !onlyPages || onlyPages.includes(p.page_number))) {
   const words = (p.words as { t: string }[]).map((w) => w.t);
   let done = false;
   for (let attempt = 0; attempt < 3 && !done; attempt++) {
     try {
-      const { mp3, timings } = await synthesizeWords(words, voice);
+      const { mp3, timings } = await synthesizeWords(words, voice, dict);
       const path = `${book.id}/${voice}/${String(p.page_number).padStart(3, '0')}-${Date.now().toString(36)}.mp3`;
       const { error: upErr } = await db.storage.from('audio').upload(path, mp3, { contentType: 'audio/mpeg' });
       if (upErr) throw upErr;
@@ -29,5 +32,5 @@ for (const p of pages ?? []) {
     }
   }
 }
-await db.from('books').update({ narration_voice: voice, read_aloud_enabled: true }).eq('id', book.id);
+if (!onlyPages) await db.from('books').update({ narration_voice: voice, read_aloud_enabled: true }).eq('id', book.id);
 console.log(`\n${slug}: narrated with ${voice}${failed.length ? `, failed: ${failed.join(', ')}` : ''}`);

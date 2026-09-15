@@ -10,12 +10,31 @@ const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replac
 
 // Synthesises `words` as one utterance with an SSML mark before each word, returning MP3 bytes
 // and the start time (seconds) of every word. Only Neural2/WaveNet voices honour marks.
-export async function synthesizeWords(words: string[], voice: NarrationVoice, rate = 0.95): Promise<{ mp3: Buffer; timings: number[] }> {
+export type Pronunciations = Record<string, string>; // normalised word -> "sounds like" or /IPA/
+
+export const normaliseWord = (w: string) => w.toLowerCase().replace(/^[^a-z0-9']+|[^a-z0-9']+$/g, '');
+
+// Keeps surrounding punctuation/quotes outside the substitution so pauses still trigger.
+function renderWord(w: string, dict: Pronunciations): string {
+  const core = normaliseWord(w);
+  const say = dict[core];
+  if (!say) return esc(w);
+  const start = w.search(/[a-zA-Z0-9']/);
+  const end = w.length - [...w].reverse().join('').search(/[a-zA-Z0-9']/);
+  const lead = w.slice(0, Math.max(0, start));
+  const body = w.slice(Math.max(0, start), end);
+  const tail = w.slice(end);
+  const ipa = say.match(/^\/(.+)\/$/);
+  const inner = ipa ? `<phoneme alphabet="ipa" ph="${esc(ipa[1])}">${esc(body)}</phoneme>` : `<sub alias="${esc(say)}">${esc(body)}</sub>`;
+  return `${esc(lead)}${inner}${esc(tail)}`;
+}
+
+export async function synthesizeWords(words: string[], voice: NarrationVoice, dict: Pronunciations = {}, rate = 0.95): Promise<{ mp3: Buffer; timings: number[] }> {
   const key = process.env.GOOGLE_TTS_API_KEY;
   if (!key) throw new Error('GOOGLE_TTS_API_KEY is not set');
   // A beat after each sentence and a shorter one after commas, so kids can take the picture in.
   const pause = (w: string) => (/[.!?…][”"’')\]]*$/.test(w) ? '<break time="550ms"/>' : /[,;:][”"’')\]]*$/.test(w) ? '<break time="180ms"/>' : '');
-  const ssml = `<speak>${words.map((w, i) => `<mark name="w${i}"/>${esc(w)}${pause(w)}`).join(' ')}</speak>`;
+  const ssml = `<speak>${words.map((w, i) => `<mark name="w${i}"/>${renderWord(w, dict)}${pause(w)}`).join(' ')}</speak>`;
   const res = await fetch(`https://texttospeech.googleapis.com/v1beta1/text:synthesize?key=${key}`, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },

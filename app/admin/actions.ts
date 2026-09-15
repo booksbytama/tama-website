@@ -6,7 +6,8 @@ import { z } from 'zod';
 import { requireAdmin } from '@/lib/auth';
 import { checkLimit } from '@/lib/ratelimit';
 import { supabaseAdmin } from '@/lib/supabase/admin';
-import { NARRATION_VOICES, synthesizeWords, type NarrationVoice } from '@/lib/tts';
+import { NARRATION_VOICES, normaliseWord, synthesizeWords, type NarrationVoice } from '@/lib/tts';
+import { loadPronunciations } from '@/lib/db/pronunciations';
 import type { WordBox } from '@/lib/db/types';
 
 const slug = z
@@ -181,7 +182,7 @@ export async function narratePageAction(bookId: string, pageNumber: number, voic
   if (error) throw error;
   const words = (page.words as WordBox[] | null) ?? [];
   if (words.length === 0) return { ok: true, skipped: true };
-  const { mp3, timings } = await synthesizeWords(words.map((w) => w.t), v);
+  const { mp3, timings } = await synthesizeWords(words.map((w) => w.t), v, await loadPronunciations());
   const path = `${bookId}/${v}/${String(pageNumber).padStart(3, '0')}-${Date.now().toString(36)}.mp3`;
   const { error: upErr } = await db.storage.from('audio').upload(path, mp3, { contentType: 'audio/mpeg', upsert: true });
   if (upErr) throw upErr;
@@ -245,4 +246,39 @@ export async function toggleDownloadListedAction(id: string, listed: boolean) {
   await supabaseAdmin().from('downloads').update({ is_listed: listed }).eq('id', id);
   revalidatePath('/account/pack');
   revalidatePath('/admin/downloads');
+}
+
+// --- Pronunciation dictionary ---
+
+export async function savePronunciationAction(formData: FormData): Promise<{ error?: string; ok?: true }> {
+  await guard();
+  const word = normaliseWord(String(formData.get('word') ?? ''));
+  const say_as = String(formData.get('say_as') ?? '').trim();
+  if (!word || !say_as) return { error: 'Both the word and how to say it are needed.' };
+  const { error } = await supabaseAdmin().from('pronunciations').upsert({ word, say_as }, { onConflict: 'word' });
+  if (error) return { error: error.message };
+  revalidatePath('/admin/pronunciations');
+  return { ok: true };
+}
+
+export async function deletePronunciationAction(word: string) {
+  await guard();
+  await supabaseAdmin().from('pronunciations').delete().eq('word', word);
+  revalidatePath('/admin/pronunciations');
+}
+
+// Which listed books contain a word (so the admin knows what to regenerate).
+export async function booksUsingWordAction(word: string): Promise<{ slug: string; title: string; pages: number[] }[]> {
+  await guard();
+  const w = normaliseWord(word);
+  const db = supabaseAdmin();
+  const { data } = await db.from('book_pages').select('page_number, words, book:books(slug, title)').not('words', 'is', null);
+  const out = new Map<string, { slug: string; title: string; pages: number[] }>();
+  for (const row of (data ?? []) as unknown as { page_number: number; words: WordBox[]; book: { slug: string; title: string } | null }[]) {
+    if (!row.book || !row.words.some((x) => normaliseWord(x.t) === w)) continue;
+    const e = out.get(row.book.slug) ?? { slug: row.book.slug, title: row.book.title, pages: [] };
+    e.pages.push(row.page_number);
+    out.set(row.book.slug, e);
+  }
+  return [...out.values()];
 }
