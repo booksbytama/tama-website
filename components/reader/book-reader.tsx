@@ -578,10 +578,7 @@ function Face({ page, title, side, shaded, rounded, lit }: { page?: Page; title:
       className={`absolute inset-0 overflow-hidden bg-[#f7fbff] [backface-visibility:hidden] ${rounded}`}
       style={side === 'back' ? { transform: 'rotateY(180deg)' } : undefined}
     >
-      {page && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={page.url} alt={`${title} page ${page.page_number}`} draggable={false} className='size-full object-contain' />
-      )}
+      {page && <PageImg src={page.url} alt={`${title} page ${page.page_number}`} />}
       {lit !== null &&
         page?.words?.map((w, i) => (
           <span
@@ -599,6 +596,26 @@ function Face({ page, title, side, shaded, rounded, lit }: { page?: Page; title:
         }`}
       />
     </div>
+  );
+}
+
+// A page image that retries if the signed URL fetch hiccups (a burst of requests on open occasionally drops one).
+function PageImg({ src, alt }: { src: string; alt: string }) {
+  const [attempt, setAttempt] = useState(0);
+  const url = attempt === 0 ? src : `${src}${src.includes('?') ? '&' : '?'}retry=${attempt}`;
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      key={url}
+      src={url}
+      alt={alt}
+      draggable={false}
+      decoding='async'
+      className='size-full object-contain'
+      onError={() => {
+        if (attempt < 3) setTimeout(() => setAttempt((a) => a + 1), 600 * (attempt + 1));
+      }}
+    />
   );
 }
 

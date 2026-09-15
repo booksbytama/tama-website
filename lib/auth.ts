@@ -10,6 +10,7 @@ export type AppUser = {
   email: string | null;
   display_name: string | null;
   role: 'parent' | 'admin';
+  is_reviewer: boolean;
 };
 
 // Upserts the Clerk user into our users table. Works without the webhook, which
@@ -60,3 +61,11 @@ export async function requireAdmin(): Promise<AppUser> {
   if (!(await isAdmin())) redirect('/');
   return user;
 }
+
+// Full access = admin or reviewer: every book, every page, listed or not.
+export const hasFullAccess = cache(async (): Promise<boolean> => {
+  const user = await ensureUser();
+  if (!user) return false;
+  if (user.is_reviewer) return true;
+  return isAdmin();
+});

@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { headers } from 'next/headers';
 import { notFound } from 'next/navigation';
 import { BookReader } from '@/components/reader/book-reader';
-import { ensureUser } from '@/lib/auth';
+import { ensureUser, hasFullAccess } from '@/lib/auth';
 import { allowedPages, getBookBySlug, signedPageUrls } from '@/lib/db/books';
 import { getProfileForUser } from '@/lib/db/profiles';
 import { getActiveProfileId } from '@/lib/profile-cookie';
@@ -17,11 +17,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ReadPage({ params, searchParams }: Props) {
   const [{ slug }, { page }, hdrs, activeId] = await Promise.all([params, searchParams, headers(), getActiveProfileId()]);
-  const [book, user] = await Promise.all([getBookBySlug(slug), ensureUser()]);
+  const [user, full] = await Promise.all([ensureUser(), hasFullAccess()]);
+  const book = await getBookBySlug(slug, full);
   if (!book) notFound();
 
   const isMember = Boolean(user);
-  const limit = allowedPages(book, isMember);
+  const limit = full ? book.page_count : allowedPages(book, isMember);
   const ip = hdrs.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'anon';
 
   const [allowed, pages, profile] = await Promise.all([

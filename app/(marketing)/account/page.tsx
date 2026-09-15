@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Plus } from 'lucide-react';
 import { ProfileAvatar } from '@/components/account/profile-avatar';
-import { requireUser } from '@/lib/auth';
+import { hasFullAccess, requireUser } from '@/lib/auth';
 import { listProfiles } from '@/lib/db/profiles';
 import { pickProfileAction } from './actions';
 
@@ -10,7 +10,7 @@ export const metadata: Metadata = { title: "Who's reading?" };
 
 export default async function AccountPage() {
   const user = await requireUser();
-  const profiles = await listProfiles(user.id);
+  const [profiles, full] = await Promise.all([listProfiles(user.id), hasFullAccess()]);
 
   return (
     <div className='relative overflow-hidden bg-foam'>
@@ -46,6 +46,9 @@ export default async function AccountPage() {
         <div className='flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm font-semibold text-slate'>
           <Link href='/account/pack' className='text-ocean hover:text-royal'>My starter pack</Link>
           <Link href='/account/profiles' className='hover:text-ocean'>Manage profiles</Link>
+          {full && (
+            <Link href='/account/review' className='rounded-full bg-sun px-3 py-1.5 text-royal hover:brightness-105'>Books to review</Link>
+          )}
           {user.role === 'admin' && (
             <Link href='/admin' className='hover:text-ocean'>Admin</Link>
           )}

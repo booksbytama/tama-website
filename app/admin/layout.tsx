@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { BookOpen, FileDown, ExternalLink, Speech } from 'lucide-react';
+import { BookOpen, FileDown, ExternalLink, Speech, Users } from 'lucide-react';
 import { requireAdmin } from '@/lib/auth';
 
 export const metadata = { title: 'Admin' };
@@ -26,6 +26,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           </Link>
           <Link href='/admin/pronunciations' className='flex items-center gap-2.5 rounded-xl px-3.5 py-3 text-[#c9ddf2] hover:bg-white/15'>
             <Speech className='size-[18px]' /> Pronunciations
+          </Link>
+          <Link href='/admin/members' className='flex items-center gap-2.5 rounded-xl px-3.5 py-3 text-[#c9ddf2] hover:bg-white/15'>
+            <Users className='size-[18px]' /> Members
           </Link>
         </nav>
         <div className='mt-auto text-[13px] font-semibold text-[#9fc4e8]'>

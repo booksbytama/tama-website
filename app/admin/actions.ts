@@ -282,3 +282,12 @@ export async function booksUsingWordAction(word: string): Promise<{ slug: string
   }
   return [...out.values()];
 }
+
+// --- Members ---
+
+export async function setReviewerAction(userId: string, on: boolean) {
+  await guard();
+  const { error } = await supabaseAdmin().from('users').update({ is_reviewer: on }).eq('id', userId);
+  if (error) throw error;
+  revalidatePath('/admin/members');
+}
