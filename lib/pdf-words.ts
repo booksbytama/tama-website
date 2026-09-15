@@ -10,9 +10,25 @@ const charWidth = (ch: string) => (NARROW.test(ch) ? 0.45 : ch === ' ' ? 0.55 : 
 const measure = (s: string) => [...s].reduce((sum, c) => sum + charWidth(c), 0);
 
 export function extractWords(items: TextItem[], pageWidth: number, pageHeight: number): { text: string; words: WordBox[] } {
-  const lines = items
+  const sorted = items
     .filter((it) => it.str?.trim())
     .sort((a, b) => b.transform[5] - a.transform[5] || a.transform[4] - b.transform[4]);
+  // PDF exports often split one word into fragments ("laug" + "hed"). Merge runs that sit on the
+  // same baseline with no real gap between them.
+  const lines: TextItem[] = [];
+  for (const it of sorted) {
+    const prev = lines[lines.length - 1];
+    if (prev) {
+      const sameLine = Math.abs(prev.transform[5] - it.transform[5]) < 1;
+      const gap = it.transform[4] - (prev.transform[4] + prev.width);
+      const h = prev.height || 12;
+      if (sameLine && gap < 0.12 * h && gap > -0.5 * h && !/\s$/.test(prev.str) && !/^\s/.test(it.str)) {
+        lines[lines.length - 1] = { ...prev, str: prev.str + it.str, width: it.transform[4] + it.width - prev.transform[4] };
+        continue;
+      }
+    }
+    lines.push({ ...it });
+  }
   const words: WordBox[] = [];
   for (const it of lines) {
     const x0 = it.transform[4];
