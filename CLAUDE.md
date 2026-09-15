@@ -34,4 +34,4 @@ Marketing + reading site for children's-book publisher Books by Tama. Next.js 15
 
 **Styling**: design tokens are Tailwind theme colours in `app/globals.css` (`royal`, `ocean`, `sun`, `tangerine`, `sand`, …) plus `btn-*`, `field`, `card-float`, `wrapper` utilities. Headings are Fredoka, body Quicksand. `components/ui/` is shadcn-generated; prefer the custom utilities for site UI.
 
-Deferred work is tracked in `BACKLOG.md`.
+Deferred work is tracked in `BACKLOG.md`; the owner-facing overview of services, storage and flows is `ARCHITECTURE.md`.
